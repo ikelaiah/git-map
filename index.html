@@ -156,7 +156,7 @@
     }
 
     .flow-line.is-active {
-      stroke-width: 4.5;
+      stroke-width: 3.4;
     }
 
     .flow-label-bg {
@@ -306,6 +306,14 @@
       transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
     }
 
+    .command-card-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
     .command-card:hover,
     .command-card:focus-visible,
     .command-card.is-active {
@@ -317,19 +325,61 @@
 
     .command-card strong {
       display: block;
-      margin-bottom: 8px;
       font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: #fff3df;
+      color: #8a4b08;
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .command-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .command-card code {
       display: inline-block;
-      margin-bottom: 8px;
       padding: 4px 7px;
       border-radius: 6px;
       background: #172033;
       color: white;
       font-size: 0.8rem;
       white-space: normal;
+    }
+
+    .copy-button {
+      min-width: 44px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #34425a;
+      cursor: pointer;
+      flex: 0 0 auto;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .copy-button:hover,
+    .copy-button:focus-visible {
+      border-color: var(--cmd-color, #172033);
+      background: white;
+      color: var(--cmd-color, #172033);
+      outline: none;
     }
 
     .command-card p {
@@ -364,6 +414,89 @@
       margin-top: 5px;
       border-radius: 50%;
       background: var(--dot);
+    }
+
+    .learn-section {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .learn-section h3 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      letter-spacing: 0;
+    }
+
+    .path-steps {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .path-steps li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .path-steps code {
+      border-radius: 6px;
+      padding: 2px 5px;
+      background: #eef2f7;
+      color: #172033;
+      font-size: 0.8rem;
+    }
+
+    .path-steps b {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #172033;
+      color: white;
+      font-size: 0.72rem;
+    }
+
+    .tool-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tool-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+      padding: 12px;
+    }
+
+    .tool-card code {
+      display: inline-block;
+      margin-bottom: 7px;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #eef2f7;
+      color: #172033;
+      font-size: 0.8rem;
+      white-space: normal;
+    }
+
+    .tool-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.38;
     }
 
     .empty-state {
@@ -412,7 +545,8 @@
       }
 
       .git-map,
-      .command-list {
+      .command-list,
+      .tool-list {
         grid-template-columns: 1fr;
       }
 
@@ -448,19 +582,19 @@
       <svg class="flow-layer" viewBox="0 0 1400 735" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 0 0 L 8 4 L 0 8 z" fill="#2563eb"></path>
+            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
           </marker>
           <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 0 0 L 8 4 L 0 8 z" fill="#0f8f72"></path>
+            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#0f8f72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
           </marker>
           <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 0 0 L 8 4 L 0 8 z" fill="#b7791f"></path>
+            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#b7791f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
           </marker>
           <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 0 0 L 8 4 L 0 8 z" fill="#d14343"></path>
+            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#d14343" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
           </marker>
           <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 0 0 L 8 4 L 0 8 z" fill="#7950f2"></path>
+            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#7950f2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
           </marker>
         </defs>
       </svg>
@@ -521,12 +655,26 @@
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--red)"></span><span>Red flows exchange commits with the shared remote.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--violet)"></span><span>Violet flows temporarily store work without committing it.</span></div>
         </div>
+        <div class="learn-section">
+          <h3>Beginner Daily Path</h3>
+          <ol class="path-steps">
+            <li><b>1</b><span>Sync first with <code>git pull</code>.</span></li>
+            <li><b>2</b><span>Edit files in your workspace.</span></li>
+            <li><b>3</b><span>Prepare changes with <code>git add</code>.</span></li>
+            <li><b>4</b><span>Save locally with <code>git commit</code>.</span></li>
+            <li><b>5</b><span>Share work with <code>git push</code>.</span></li>
+          </ol>
+        </div>
       </aside>
 
       <section class="command-panel">
         <h2 id="command-title">Hover an area</h2>
         <p class="empty-state" id="command-help"><strong>Focused</strong> mode keeps the map simple. Hover a Git area, or tab to it with the keyboard, to reveal only the commands connected to that area.</p>
         <ul class="command-list" id="command-list"></ul>
+        <div class="learn-section" id="tool-section" hidden>
+          <h3 id="tool-title">Useful checks</h3>
+          <ul class="tool-list" id="tool-list"></ul>
+        </div>
       </section>
     </section>
   </main>
@@ -561,6 +709,7 @@
         color: "#7950f2",
         marker: "arrow-violet",
         zones: ["stash", "workspace"],
+        caution: "May create conflicts",
         note: "Applies the latest stash and removes it from the stash list."
       },
       {
@@ -605,6 +754,7 @@
         color: "#2563eb",
         marker: "arrow-blue",
         zones: ["workspace", "local"],
+        caution: "Discards edits",
         note: "Replaces a file in your workspace with the last committed version."
       },
       {
@@ -627,6 +777,7 @@
         color: "#0f8f72",
         marker: "arrow-green",
         zones: ["local", "staging"],
+        caution: "Rewrites last local commit",
         note: "Moves the last commit back to staging so you can adjust and recommit."
       },
       {
@@ -675,12 +826,46 @@
       }
     ];
 
+    const toolCommands = {
+      stash: [
+        { command: "git stash list", note: "Show saved stashes." },
+        { command: "git stash show -p", note: "Preview what is inside a stash." }
+      ],
+      workspace: [
+        { command: "git status", note: "See changed, staged, and untracked files." },
+        { command: "git diff", note: "Review workspace edits before staging." },
+        { command: "git clean -fd", note: "Remove untracked files. Use carefully.", caution: true }
+      ],
+      staging: [
+        { command: "git diff --staged", note: "Review exactly what will be committed." },
+        { command: "git add -p", note: "Stage selected hunks instead of whole files." }
+      ],
+      local: [
+        { command: "git log --oneline --graph", note: "Read local commit history as a compact graph." },
+        { command: "git branch", note: "List local branches." },
+        { command: "git switch -c <branch>", note: "Create and switch to a new branch." }
+      ],
+      remote: [
+        { command: "git remote -v", note: "Show remote repository URLs." },
+        { command: "git branch -r", note: "List branches known from the remote." }
+      ],
+      all: [
+        { command: "git status", note: "Start here when you are unsure what Git sees." },
+        { command: "git diff", note: "Inspect unstaged changes." },
+        { command: "git diff --staged", note: "Inspect staged changes." },
+        { command: "git log --oneline --graph", note: "Read commit history." }
+      ]
+    };
+
     const map = document.querySelector(".git-map");
     const svg = document.querySelector(".flow-layer");
     const zoneEls = [...document.querySelectorAll(".zone")];
     const commandList = document.querySelector("#command-list");
     const commandTitle = document.querySelector("#command-title");
     const commandHelp = document.querySelector("#command-help");
+    const toolSection = document.querySelector("#tool-section");
+    const toolTitle = document.querySelector("#tool-title");
+    const toolList = document.querySelector("#tool-list");
     const modeButtons = [...document.querySelectorAll("[data-mode]")];
     let selectedZone = null;
     let displayMode = "focused";
@@ -690,6 +875,28 @@
         .replace(" <file>", "")
         .replace(" <url>", "")
         .replace(" -m \"message\"", "");
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    async function copyCommand(command, button) {
+      try {
+        await navigator.clipboard.writeText(command);
+        button.textContent = "OK";
+        window.setTimeout(() => {
+          button.textContent = "Copy";
+        }, 1200);
+      } catch {
+        button.textContent = "Copy";
+      }
     }
 
     function createSvgElement(name, attributes = {}) {
@@ -773,7 +980,7 @@
           y1: y,
           y2: y,
           stroke: "#dce3ef",
-          "stroke-width": 9,
+          "stroke-width": 7,
           "stroke-linecap": "round"
         });
         const path = createSvgElement("line", {
@@ -782,7 +989,7 @@
           y1: y,
           y2: y,
           stroke: item.color,
-          "stroke-width": 2.8,
+          "stroke-width": 2.2,
           "stroke-linecap": "round",
           "marker-end": `url(#${item.marker})`
         });
@@ -848,12 +1055,48 @@
         li.tabIndex = 0;
         li.dataset.commandId = item.id;
         li.style.setProperty("--cmd-color", item.color);
-        li.innerHTML = `<strong>${item.title}</strong><code>${item.command}</code><p>${item.note}</p>`;
+        li.innerHTML = `
+          <div class="command-card-header">
+            <strong>${escapeHtml(item.title)}</strong>
+            ${item.caution ? `<span class="badge">${escapeHtml(item.caution)}</span>` : ""}
+          </div>
+          <div class="command-row">
+            <code>${escapeHtml(item.command)}</code>
+            <button class="copy-button" type="button" aria-label="Copy ${escapeHtml(item.command)}">Copy</button>
+          </div>
+          <p>${escapeHtml(item.note)}</p>
+        `;
+        li.querySelector(".copy-button").addEventListener("click", (event) => {
+          event.stopPropagation();
+          copyCommand(item.command, event.currentTarget);
+        });
         li.addEventListener("mouseenter", () => setActiveCommand(item.id));
         li.addEventListener("focus", () => setActiveCommand(item.id));
         li.addEventListener("mouseleave", () => setActiveCommand(null));
         li.addEventListener("blur", () => setActiveCommand(null));
         commandList.append(li);
+      });
+      renderTools();
+    }
+
+    function renderTools() {
+      const key = displayMode === "all" ? "all" : selectedZone;
+      const tools = key ? toolCommands[key] || [] : [];
+      toolSection.hidden = tools.length === 0;
+      toolList.innerHTML = "";
+      if (!tools.length) {
+        return;
+      }
+      toolTitle.textContent = displayMode === "all" ? "Useful checks before changing anything" : `${zones[selectedZone].label} checks`;
+      tools.forEach((tool) => {
+        const li = document.createElement("li");
+        li.className = "tool-card";
+        li.innerHTML = `
+          <code>${escapeHtml(tool.command)}</code>
+          ${tool.caution ? `<span class="badge">Use carefully</span>` : ""}
+          <p>${escapeHtml(tool.note)}</p>
+        `;
+        toolList.append(li);
       });
     }
 
@@ -884,14 +1127,6 @@
       zone.addEventListener("mouseenter", () => selectZone(zone.dataset.zone));
       zone.addEventListener("focus", () => selectZone(zone.dataset.zone));
       zone.addEventListener("click", () => selectZone(zone.dataset.zone));
-    });
-
-    map.addEventListener("mouseleave", () => {
-      if (displayMode === "focused") {
-        selectedZone = null;
-        zoneEls.forEach((el) => el.classList.remove("is-selected"));
-        updateFlows();
-      }
     });
 
     modeButtons.forEach((button) => {
