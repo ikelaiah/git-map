@@ -1,5 +1,7 @@
 # Git Map
 
+[🌐 Live Demo](https://ikelaiah.github.io/git-map/)
+
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](index.html)
 [![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](index.html)
@@ -37,7 +39,7 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
-🚀 Open `index.html` in a browser to use it locally.
+🚀 Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
 
 ## 🌍 Publish With GitHub Pages
 
