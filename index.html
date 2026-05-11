@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Git Helper</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #65738a;
+      --line: #d7deea;
+      --blue: #2563eb;
+      --green: #0f8f72;
+      --amber: #b7791f;
+      --red: #d14343;
+      --violet: #7950f2;
+      --shadow: 0 22px 60px rgba(23, 32, 51, 0.12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(37, 99, 235, 0.08), transparent 320px),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    main {
+      width: min(1480px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 30px 0 34px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .intro {
+      max-width: 720px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 26px rgba(23, 32, 51, 0.08);
+      flex: 0 0 auto;
+    }
+
+    .mode-switch button {
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      padding: 9px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mode-switch button[aria-pressed="true"] {
+      background: var(--ink);
+      color: white;
+    }
+
+    .git-map {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(170px, 1fr));
+      gap: 14px;
+      min-height: 735px;
+      padding: 28px 18px 445px;
+      border: 1px solid rgba(215, 222, 234, 0.92);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78)),
+        rgba(255, 255, 255, 0.76);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .flow-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .lifeline {
+      opacity: 0.42;
+      filter: drop-shadow(0 4px 10px rgba(23, 32, 51, 0.08));
+      transition: opacity 160ms ease, stroke-width 160ms ease;
+    }
+
+    .lifeline.is-selected,
+    .lifeline.is-active {
+      opacity: 1;
+      stroke-width: 2.5;
+    }
+
+    .lifeline-label {
+      fill: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      opacity: 0.9;
+    }
+
+    .flow-track {
+      opacity: 0;
+      mix-blend-mode: multiply;
+      transition: opacity 160ms ease;
+    }
+
+    .flow-track.is-visible {
+      opacity: 1;
+    }
+
+    .flow-line {
+      opacity: 0;
+      filter: drop-shadow(0 5px 10px rgba(23, 32, 51, 0.12));
+      transition: opacity 160ms ease, stroke-width 160ms ease;
+    }
+
+    .flow-line.is-visible {
+      opacity: 1;
+    }
+
+    .flow-line.is-active {
+      stroke-width: 4.5;
+    }
+
+    .flow-label-bg {
+      opacity: 0;
+      fill: rgba(255, 255, 255, 0.98);
+      stroke: rgba(215, 222, 234, 0.96);
+      stroke-width: 1;
+      filter: drop-shadow(0 4px 8px rgba(23, 32, 51, 0.12));
+      transition: opacity 160ms ease, stroke 160ms ease;
+    }
+
+    .flow-label-bg.is-visible {
+      opacity: 1;
+    }
+
+    .flow-label-bg.is-active {
+      stroke-width: 2;
+    }
+
+    .flow-label {
+      opacity: 0;
+      fill: #111827;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      transition: opacity 160ms ease;
+    }
+
+    .flow-label.is-visible {
+      opacity: 1;
+    }
+
+    .zone {
+      position: relative;
+      z-index: 2;
+      min-height: 255px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(23, 32, 51, 0.045);
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .zone:hover,
+    .zone:focus-visible,
+    .zone.is-selected {
+      transform: translateY(-4px);
+      border-color: var(--zone-color);
+      box-shadow: 0 18px 38px rgba(23, 32, 51, 0.11);
+      outline: none;
+    }
+
+    .zone::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: var(--zone-color);
+    }
+
+    .zone-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--zone-color) 12%, white);
+      color: var(--zone-color);
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    .zone h2 {
+      margin: 0;
+      font-size: 1.18rem;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .zone p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.94rem;
+    }
+
+    .zone code {
+      display: inline-block;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #eef2f7;
+      color: #283247;
+      font-size: 0.8rem;
+      white-space: normal;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(320px, 1.35fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .command-panel,
+    .legend {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 14px 34px rgba(23, 32, 51, 0.08);
+    }
+
+    .command-panel {
+      padding: 18px;
+    }
+
+    .command-panel h2,
+    .legend h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+      letter-spacing: 0;
+    }
+
+    .command-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .command-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 13px;
+      background: white;
+      cursor: pointer;
+      min-height: 106px;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .command-card:hover,
+    .command-card:focus-visible,
+    .command-card.is-active {
+      border-color: var(--cmd-color);
+      background: color-mix(in srgb, var(--cmd-color) 7%, white);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .command-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .command-card code {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #172033;
+      color: white;
+      font-size: 0.8rem;
+      white-space: normal;
+    }
+
+    .command-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.87rem;
+      line-height: 1.38;
+    }
+
+    .legend {
+      padding: 18px;
+    }
+
+    .legend-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 16px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--dot);
+    }
+
+    .empty-state {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .empty-state strong {
+      color: var(--ink);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1120px) {
+      .topbar,
+      .details {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .git-map {
+        grid-template-columns: repeat(2, minmax(210px, 1fr));
+        padding-bottom: 28px;
+      }
+
+      .flow-layer {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100vw - 24px, 560px);
+        padding-top: 20px;
+      }
+
+      .git-map,
+      .command-list {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-switch button {
+        flex: 1;
+      }
+
+      .zone {
+        min-height: 190px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar" aria-labelledby="page-title">
+      <div>
+        <h1 id="page-title">Interactive Git Helper</h1>
+        <p class="intro">Hover or focus a Git area to see the commands that move changes between stash, workspace, staging, local history, and a remote repository.</p>
+      </div>
+      <div class="mode-switch" aria-label="Display mode">
+        <button type="button" data-mode="focused" aria-pressed="true">Focused</button>
+        <button type="button" data-mode="all" aria-pressed="false">Everything</button>
+      </div>
+    </section>
+
+    <section class="git-map" aria-label="Git areas">
+      <svg class="flow-layer" viewBox="0 0 1400 735" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#2563eb"></path>
+          </marker>
+          <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#0f8f72"></path>
+          </marker>
+          <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#b7791f"></path>
+          </marker>
+          <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#d14343"></path>
+          </marker>
+          <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#7950f2"></path>
+          </marker>
+        </defs>
+      </svg>
+
+      <article class="zone" tabindex="0" data-zone="stash" style="--zone-color: var(--violet)">
+        <div class="zone-icon">S</div>
+        <div>
+          <h2>Stash</h2>
+          <p>Temporary shelf for unfinished work you want to hide and restore later.</p>
+        </div>
+        <code>git stash</code>
+      </article>
+
+      <article class="zone" tabindex="0" data-zone="workspace" style="--zone-color: var(--blue)">
+        <div class="zone-icon">W</div>
+        <div>
+          <h2>Local Workspace</h2>
+          <p>Your checked-out files. This is where edits, new files, conflicts, and deletions appear first.</p>
+        </div>
+        <code>git status</code>
+      </article>
+
+      <article class="zone" tabindex="0" data-zone="staging" style="--zone-color: var(--amber)">
+        <div class="zone-icon">A</div>
+        <div>
+          <h2>Staging Area</h2>
+          <p>The prepared snapshot for your next commit. Add only what belongs together.</p>
+        </div>
+        <code>git diff --staged</code>
+      </article>
+
+      <article class="zone" tabindex="0" data-zone="local" style="--zone-color: var(--green)">
+        <div class="zone-icon">L</div>
+        <div>
+          <h2>Local Repo</h2>
+          <p>Your local commit history. Commits are saved here before they are shared.</p>
+        </div>
+        <code>git log --oneline</code>
+      </article>
+
+      <article class="zone" tabindex="0" data-zone="remote" style="--zone-color: var(--red)">
+        <div class="zone-icon">R</div>
+        <div>
+          <h2>Remote Repo</h2>
+          <p>The shared copy on GitHub, GitLab, Bitbucket, or another Git server.</p>
+        </div>
+        <code>git remote -v</code>
+      </article>
+    </section>
+
+    <section class="details" aria-live="polite">
+      <aside class="legend">
+        <h2>How To Read It</h2>
+        <div class="legend-grid">
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--blue)"></span><span>Blue flows change files in the local workspace.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--amber)"></span><span>Amber flows prepare or unprepare changes for a commit.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--green)"></span><span>Green flows create or inspect local commits.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--red)"></span><span>Red flows exchange commits with the shared remote.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--violet)"></span><span>Violet flows temporarily store work without committing it.</span></div>
+        </div>
+      </aside>
+
+      <section class="command-panel">
+        <h2 id="command-title">Hover an area</h2>
+        <p class="empty-state" id="command-help"><strong>Focused</strong> mode keeps the map simple. Hover a Git area, or tab to it with the keyboard, to reveal only the commands connected to that area.</p>
+        <ul class="command-list" id="command-list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const zones = {
+      stash: { label: "Stash", x: 140, color: "#7950f2" },
+      workspace: { label: "Local Workspace", x: 420, color: "#2563eb" },
+      staging: { label: "Staging Area", x: 700, color: "#b7791f" },
+      local: { label: "Local Repo", x: 980, color: "#0f8f72" },
+      remote: { label: "Remote Repo", x: 1260, color: "#d14343" }
+    };
+
+    const commands = [
+      {
+        id: "stash-save",
+        command: "git stash push -m \"message\"",
+        title: "Shelve unfinished edits",
+        from: "workspace",
+        to: "stash",
+        color: "#7950f2",
+        marker: "arrow-violet",
+        zones: ["workspace", "stash"],
+        note: "Moves tracked edits and staged changes out of your workspace so you can switch context."
+      },
+      {
+        id: "stash-pop",
+        command: "git stash pop",
+        title: "Restore shelved work",
+        from: "stash",
+        to: "workspace",
+        color: "#7950f2",
+        marker: "arrow-violet",
+        zones: ["stash", "workspace"],
+        note: "Applies the latest stash and removes it from the stash list."
+      },
+      {
+        id: "stash-apply",
+        command: "git stash apply",
+        title: "Copy stash back",
+        from: "stash",
+        to: "workspace",
+        color: "#7950f2",
+        marker: "arrow-violet",
+        zones: ["stash", "workspace"],
+        note: "Applies a stash but keeps it available for reuse."
+      },
+      {
+        id: "add",
+        command: "git add <file>",
+        title: "Stage selected changes",
+        from: "workspace",
+        to: "staging",
+        color: "#b7791f",
+        marker: "arrow-amber",
+        zones: ["workspace", "staging"],
+        note: "Copies chosen workspace changes into the next commit snapshot."
+      },
+      {
+        id: "restore-staged",
+        command: "git restore --staged <file>",
+        title: "Unstage changes",
+        from: "staging",
+        to: "workspace",
+        color: "#b7791f",
+        marker: "arrow-amber",
+        zones: ["staging", "workspace"],
+        note: "Removes changes from staging while keeping the file edits in your workspace."
+      },
+      {
+        id: "restore",
+        command: "git restore <file>",
+        title: "Discard workspace edits",
+        from: "local",
+        to: "workspace",
+        color: "#2563eb",
+        marker: "arrow-blue",
+        zones: ["workspace", "local"],
+        note: "Replaces a file in your workspace with the last committed version."
+      },
+      {
+        id: "commit",
+        command: "git commit -m \"message\"",
+        title: "Save staged snapshot",
+        from: "staging",
+        to: "local",
+        color: "#0f8f72",
+        marker: "arrow-green",
+        zones: ["staging", "local"],
+        note: "Creates a new commit in your local repository from staged changes."
+      },
+      {
+        id: "reset-soft",
+        command: "git reset --soft HEAD~1",
+        title: "Undo commit, keep staged",
+        from: "local",
+        to: "staging",
+        color: "#0f8f72",
+        marker: "arrow-green",
+        zones: ["local", "staging"],
+        note: "Moves the last commit back to staging so you can adjust and recommit."
+      },
+      {
+        id: "fetch",
+        command: "git fetch",
+        title: "Download remote history",
+        from: "remote",
+        to: "local",
+        color: "#d14343",
+        marker: "arrow-red",
+        zones: ["remote", "local"],
+        note: "Updates remote-tracking branches without changing your workspace."
+      },
+      {
+        id: "pull",
+        command: "git pull",
+        title: "Bring remote changes in",
+        from: "remote",
+        to: "workspace",
+        color: "#d14343",
+        marker: "arrow-red",
+        zones: ["remote", "workspace"],
+        note: "Fetches remote commits, integrates them locally, and updates your files."
+      },
+      {
+        id: "push",
+        command: "git push",
+        title: "Share local commits",
+        from: "local",
+        to: "remote",
+        color: "#d14343",
+        marker: "arrow-red",
+        zones: ["local", "remote"],
+        note: "Uploads your local commits to the shared remote branch."
+      },
+      {
+        id: "clone",
+        command: "git clone <url>",
+        title: "Create a local copy",
+        from: "remote",
+        to: "workspace",
+        color: "#2563eb",
+        marker: "arrow-blue",
+        zones: ["remote", "workspace", "local"],
+        note: "Creates a working directory and local repository from an existing remote."
+      }
+    ];
+
+    const map = document.querySelector(".git-map");
+    const svg = document.querySelector(".flow-layer");
+    const zoneEls = [...document.querySelectorAll(".zone")];
+    const commandList = document.querySelector("#command-list");
+    const commandTitle = document.querySelector("#command-title");
+    const commandHelp = document.querySelector("#command-help");
+    const modeButtons = [...document.querySelectorAll("[data-mode]")];
+    let selectedZone = null;
+    let displayMode = "focused";
+
+    function commandLabel(command) {
+      return command
+        .replace(" <file>", "")
+        .replace(" <url>", "")
+        .replace(" -m \"message\"", "");
+    }
+
+    function createSvgElement(name, attributes = {}) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function drawLifelines() {
+      Object.entries(zones).forEach(([key, zone]) => {
+        const group = createSvgElement("g", { "data-lifeline": key });
+        const line = createSvgElement("line", {
+          x1: zone.x,
+          x2: zone.x,
+          y1: 285,
+          y2: 696,
+          stroke: zone.color,
+          "stroke-width": 1.8,
+          "stroke-dasharray": "3 9",
+          "stroke-linecap": "round"
+        });
+        const cap = createSvgElement("circle", {
+          cx: zone.x,
+          cy: 285,
+          r: 5,
+          fill: zone.color
+        });
+        const label = createSvgElement("text", {
+          x: zone.x,
+          y: 718,
+          "text-anchor": "middle"
+        });
+        line.classList.add("lifeline");
+        cap.classList.add("lifeline");
+        label.classList.add("lifeline-label");
+        label.textContent = zone.label;
+        group.append(line, cap, label);
+        svg.append(group);
+      });
+    }
+
+    function drawFlows(items) {
+      svg.querySelectorAll(".command-flow").forEach((group) => group.remove());
+      items.forEach((item, index) => {
+        const y = 308 + index * 32;
+        const from = zones[item.from];
+        const to = zones[item.to];
+        const direction = to.x >= from.x ? 1 : -1;
+        const startX = from.x + direction * 14;
+        const endX = to.x - direction * 18;
+        const text = commandLabel(item.command);
+        const labelWidth = Math.max(90, text.length * 7.8 + 26);
+        const labelHeight = 22;
+        const labelX = (from.x + to.x) / 2;
+        const labelY = y - 8;
+        const group = createSvgElement("g");
+        group.classList.add("command-flow");
+        group.dataset.commandId = item.id;
+
+        const connectorStart = createSvgElement("line", {
+          x1: from.x,
+          x2: from.x,
+          y1: y - 5,
+          y2: y + 5,
+          stroke: item.color,
+          "stroke-width": 2.5,
+          "stroke-linecap": "round"
+        });
+        const connectorEnd = createSvgElement("line", {
+          x1: to.x,
+          x2: to.x,
+          y1: y - 5,
+          y2: y + 5,
+          stroke: item.color,
+          "stroke-width": 2.5,
+          "stroke-linecap": "round"
+        });
+        const track = createSvgElement("line", {
+          x1: Math.min(from.x, to.x) + 12,
+          x2: Math.max(from.x, to.x) - 12,
+          y1: y,
+          y2: y,
+          stroke: "#dce3ef",
+          "stroke-width": 9,
+          "stroke-linecap": "round"
+        });
+        const path = createSvgElement("line", {
+          x1: startX,
+          x2: endX,
+          y1: y,
+          y2: y,
+          stroke: item.color,
+          "stroke-width": 2.8,
+          "stroke-linecap": "round",
+          "marker-end": `url(#${item.marker})`
+        });
+        track.classList.add("flow-track");
+        connectorStart.classList.add("flow-line");
+        connectorEnd.classList.add("flow-line");
+        path.classList.add("flow-line");
+
+        const labelBg = createSvgElement("rect", {
+          x: labelX - labelWidth / 2,
+          y: labelY - 16,
+          width: labelWidth,
+          height: labelHeight,
+          rx: 7,
+          ry: 7
+        });
+        labelBg.style.stroke = item.color;
+        labelBg.classList.add("flow-label-bg");
+
+        const label = createSvgElement("text", {
+          x: labelX,
+          y: labelY,
+          "text-anchor": "middle"
+        });
+        label.classList.add("flow-label");
+        label.textContent = text;
+
+        group.append(track, connectorStart, connectorEnd, path, labelBg, label);
+        svg.append(group);
+      });
+    }
+
+    function visibleCommands() {
+      if (displayMode === "all") {
+        return commands;
+      }
+      if (!selectedZone) {
+        return [];
+      }
+      return commands.filter((item) => item.zones.includes(selectedZone));
+    }
+
+    function setActiveCommand(commandId) {
+      document.querySelectorAll(".flow-track, .flow-line, .flow-label-bg, .flow-label, .command-card").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.commandId === commandId || el.closest(`[data-command-id="${commandId}"]`));
+      });
+      document.querySelectorAll("[data-lifeline]").forEach((group) => {
+        const command = commands.find((item) => item.id === commandId);
+        const active = command && [command.from, command.to].includes(group.dataset.lifeline);
+        group.querySelectorAll(".lifeline").forEach((el) => el.classList.toggle("is-active", active));
+      });
+    }
+
+    function renderCommands() {
+      const items = visibleCommands();
+      commandList.innerHTML = "";
+      commandHelp.hidden = items.length > 0;
+      commandTitle.textContent = displayMode === "all" ? "Everything Git flows" : selectedZone ? `${zones[selectedZone].label} commands` : "Hover an area";
+
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "command-card";
+        li.tabIndex = 0;
+        li.dataset.commandId = item.id;
+        li.style.setProperty("--cmd-color", item.color);
+        li.innerHTML = `<strong>${item.title}</strong><code>${item.command}</code><p>${item.note}</p>`;
+        li.addEventListener("mouseenter", () => setActiveCommand(item.id));
+        li.addEventListener("focus", () => setActiveCommand(item.id));
+        li.addEventListener("mouseleave", () => setActiveCommand(null));
+        li.addEventListener("blur", () => setActiveCommand(null));
+        commandList.append(li);
+      });
+    }
+
+    function updateFlows() {
+      const visible = visibleCommands();
+      drawFlows(visible);
+      const items = new Set(visible.map((item) => item.id));
+      document.querySelectorAll("[data-command-id]").forEach((group) => {
+        const show = items.has(group.dataset.commandId);
+        group.querySelectorAll(".flow-track, .flow-line, .flow-label-bg, .flow-label").forEach((el) => {
+          el.classList.toggle("is-visible", show);
+        });
+      });
+      document.querySelectorAll("[data-lifeline]").forEach((group) => {
+        const involved = displayMode === "all" || visibleCommands().some((item) => [item.from, item.to].includes(group.dataset.lifeline));
+        group.querySelectorAll(".lifeline").forEach((el) => el.classList.toggle("is-selected", involved));
+      });
+      renderCommands();
+    }
+
+    function selectZone(zone) {
+      selectedZone = zone;
+      zoneEls.forEach((el) => el.classList.toggle("is-selected", el.dataset.zone === zone));
+      updateFlows();
+    }
+
+    zoneEls.forEach((zone) => {
+      zone.addEventListener("mouseenter", () => selectZone(zone.dataset.zone));
+      zone.addEventListener("focus", () => selectZone(zone.dataset.zone));
+      zone.addEventListener("click", () => selectZone(zone.dataset.zone));
+    });
+
+    map.addEventListener("mouseleave", () => {
+      if (displayMode === "focused") {
+        selectedZone = null;
+        zoneEls.forEach((el) => el.classList.remove("is-selected"));
+        updateFlows();
+      }
+    });
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        displayMode = button.dataset.mode;
+        modeButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        updateFlows();
+      });
+    });
+
+    drawLifelines();
+    updateFlows();
+  </script>
+</body>
+</html>
