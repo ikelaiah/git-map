@@ -7,19 +7,111 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f5f7fb;
+      --bg: #f4f7fb;
+      --bg-start: #e9f0fb;
       --panel: #ffffff;
-      --ink: #172033;
-      --muted: #65738a;
-      --line: #d7deea;
-      --blue: #2563eb;
-      --green: #0f8f72;
-      --amber: #b7791f;
-      --red: #d14343;
-      --violet: #7950f2;
-      --shadow: 0 22px 60px rgba(23, 32, 51, 0.12);
+      --panel-strong: #ffffff;
+      --panel-soft: #f8fafc;
+      --ink: #141b2d;
+      --muted: #5e6d84;
+      --line: #d8e0ec;
+      --line-strong: #c4cedd;
+      --track: #dfe6f1;
+      --code-bg: #edf2f7;
+      --code-ink: #243044;
+      --active-bg: #141b2d;
+      --active-ink: #ffffff;
+      --solid-bg: #141b2d;
+      --solid-ink: #ffffff;
+      --ribbon-ink: #ffffff;
+      --blue: #2f6fed;
+      --green: #12836f;
+      --amber: #b56b12;
+      --red: #cf3f49;
+      --violet: #7556f6;
+      --danger-stroke: #a33b18;
+      --warning-soft: #fff7e8;
+      --warning-line: #efc783;
+      --warning-ink: #825011;
+      --switch-bg: rgba(255, 255, 255, 0.78);
+      --map-bg:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(247, 250, 252, 0.78)),
+        rgba(255, 255, 255, 0.82);
+      --shadow: 0 22px 60px rgba(20, 27, 45, 0.12);
       --radius: 8px;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0e1420;
+      --bg-start: #172133;
+      --panel: #171f2d;
+      --panel-strong: #1b2636;
+      --panel-soft: #121a27;
+      --ink: #edf3fb;
+      --muted: #9caabe;
+      --line: #2a374a;
+      --line-strong: #3a4a61;
+      --track: #253145;
+      --code-bg: #0d1320;
+      --code-ink: #e4edf8;
+      --active-bg: #edf3fb;
+      --active-ink: #07111f;
+      --solid-bg: #0d1320;
+      --solid-ink: #e4edf8;
+      --ribbon-ink: #07111f;
+      --blue: #5c91ff;
+      --green: #3bc5a7;
+      --amber: #f0ad46;
+      --red: #ff6b72;
+      --violet: #9b7cff;
+      --danger-stroke: #ff9a5d;
+      --warning-soft: #2a2114;
+      --warning-line: #7d5a24;
+      --warning-ink: #f4c56f;
+      --switch-bg: rgba(23, 31, 45, 0.8);
+      --map-bg:
+        linear-gradient(180deg, rgba(27, 38, 54, 0.94), rgba(18, 26, 39, 0.84)),
+        rgba(14, 20, 32, 0.84);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0e1420;
+        --bg-start: #172133;
+        --panel: #171f2d;
+        --panel-strong: #1b2636;
+        --panel-soft: #121a27;
+        --ink: #edf3fb;
+        --muted: #9caabe;
+        --line: #2a374a;
+        --line-strong: #3a4a61;
+        --track: #253145;
+        --code-bg: #0d1320;
+        --code-ink: #e4edf8;
+        --active-bg: #edf3fb;
+        --active-ink: #07111f;
+        --solid-bg: #0d1320;
+        --solid-ink: #e4edf8;
+        --ribbon-ink: #07111f;
+        --blue: #5c91ff;
+        --green: #3bc5a7;
+        --amber: #f0ad46;
+        --red: #ff6b72;
+        --violet: #9b7cff;
+        --danger-stroke: #ff9a5d;
+        --warning-soft: #2a2114;
+        --warning-line: #7d5a24;
+        --warning-ink: #f4c56f;
+        --switch-bg: rgba(23, 31, 45, 0.8);
+        --map-bg:
+          linear-gradient(180deg, rgba(27, 38, 54, 0.94), rgba(18, 26, 39, 0.84)),
+          rgba(14, 20, 32, 0.84);
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+      }
     }
 
     * {
@@ -30,7 +122,7 @@
       margin: 0;
       min-height: 100vh;
       background:
-        linear-gradient(180deg, rgba(37, 99, 235, 0.08), transparent 320px),
+        linear-gradient(180deg, var(--bg-start), transparent 320px),
         var(--bg);
       color: var(--ink);
     }
@@ -49,6 +141,27 @@
       margin-bottom: 22px;
     }
 
+    .control-stack {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+      flex: 0 0 auto;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    .control-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-align: right;
+      text-transform: uppercase;
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(2rem, 4vw, 3.8rem);
@@ -64,19 +177,18 @@
       line-height: 1.55;
     }
 
-    .mode-switch {
+    .segmented-control {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       padding: 5px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 10px 26px rgba(23, 32, 51, 0.08);
-      flex: 0 0 auto;
+      background: var(--switch-bg);
+      box-shadow: 0 10px 26px rgba(20, 27, 45, 0.08);
     }
 
-    .mode-switch button {
+    .segmented-control button {
       border: 0;
       border-radius: 999px;
       background: transparent;
@@ -87,9 +199,9 @@
       cursor: pointer;
     }
 
-    .mode-switch button[aria-pressed="true"] {
-      background: var(--ink);
-      color: white;
+    .segmented-control button[aria-pressed="true"] {
+      background: var(--active-bg);
+      color: var(--active-ink);
     }
 
     .git-map {
@@ -99,11 +211,9 @@
       gap: 12px;
       min-height: var(--map-height, 560px);
       padding: 24px 18px var(--map-bottom, 260px);
-      border: 1px solid rgba(215, 222, 234, 0.92);
+      border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
       border-radius: 18px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78)),
-        rgba(255, 255, 255, 0.76);
+      background: var(--map-bg);
       box-shadow: var(--shadow);
       overflow: hidden;
       transition: min-height 220ms ease, padding-bottom 220ms ease;
@@ -123,7 +233,7 @@
 
     .lifeline {
       opacity: 0.42;
-      filter: drop-shadow(0 4px 10px rgba(23, 32, 51, 0.08));
+      filter: drop-shadow(0 4px 10px rgba(20, 27, 45, 0.08));
       transition: opacity 160ms ease, stroke-width 160ms ease;
     }
 
@@ -234,18 +344,18 @@
     }
 
     .flow-ribbon.is-danger {
-      stroke: #9a3412;
+      stroke: var(--danger-stroke);
       stroke-width: 1.5;
     }
 
     .flow-label {
       opacity: 0;
-      fill: white;
+      fill: var(--ribbon-ink);
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 12px;
       font-weight: 800;
       paint-order: stroke;
-      stroke: rgba(23, 32, 51, 0.2);
+      stroke: color-mix(in srgb, var(--ink) 20%, transparent);
       stroke-width: 2px;
       stroke-linejoin: round;
       transition: opacity 160ms ease;
@@ -261,7 +371,7 @@
     }
 
     .flow-label.is-danger {
-      fill: white;
+      fill: var(--ribbon-ink);
     }
 
     @keyframes ribbon-in {
@@ -288,7 +398,7 @@
       flex-direction: column;
       gap: 16px;
       cursor: pointer;
-      box-shadow: 0 8px 22px rgba(23, 32, 51, 0.045);
+      box-shadow: 0 8px 22px rgba(20, 27, 45, 0.045);
       transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     }
 
@@ -311,7 +421,7 @@
     .zone.is-selected {
       transform: translateY(-4px);
       border-color: var(--zone-color);
-      box-shadow: 0 18px 38px rgba(23, 32, 51, 0.11);
+      box-shadow: 0 18px 38px rgba(20, 27, 45, 0.11);
       outline: none;
     }
 
@@ -320,9 +430,9 @@
       position: absolute;
       top: 12px;
       right: 12px;
-      border: 1px solid color-mix(in srgb, var(--zone-color) 45%, white);
+      border: 1px solid color-mix(in srgb, var(--zone-color) 45%, var(--panel));
       border-radius: 999px;
-      background: color-mix(in srgb, var(--zone-color) 9%, white);
+      background: color-mix(in srgb, var(--zone-color) 9%, var(--panel));
       color: var(--zone-color);
       font-size: 0.72rem;
       font-weight: 900;
@@ -344,7 +454,7 @@
       display: grid;
       place-items: center;
       border-radius: 12px;
-      background: color-mix(in srgb, var(--zone-color) 12%, white);
+      background: color-mix(in srgb, var(--zone-color) 12%, var(--panel));
       color: var(--zone-color);
       font-weight: 900;
       font-size: 1.05rem;
@@ -370,8 +480,8 @@
       max-width: 100%;
       border-radius: 999px;
       padding: 6px 9px;
-      background: #eef2f7;
-      color: #283247;
+      background: var(--code-bg);
+      color: var(--code-ink);
       font-size: 0.8rem;
       white-space: normal;
     }
@@ -388,8 +498,8 @@
     .legend {
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: 0 14px 34px rgba(23, 32, 51, 0.08);
+      background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
+      box-shadow: 0 14px 34px rgba(20, 27, 45, 0.08);
     }
 
     .command-panel {
@@ -403,7 +513,7 @@
       margin: 0 0 14px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: #fbfcff;
+      background: var(--panel-soft);
       padding: 12px;
       color: var(--muted);
       line-height: 1.45;
@@ -422,8 +532,8 @@
     .area-summary code {
       border-radius: 6px;
       padding: 2px 5px;
-      background: #eef2f7;
-      color: #172033;
+      background: var(--code-bg);
+      color: var(--code-ink);
       font-size: 0.82rem;
     }
 
@@ -447,7 +557,7 @@
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 13px;
-      background: white;
+      background: var(--panel-strong);
       cursor: pointer;
       min-height: 106px;
       transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
@@ -458,8 +568,8 @@
     }
 
     .command-card.is-danger {
-      border-color: #f2c98d;
-      background: #fffaf2;
+      border-color: var(--warning-line);
+      background: var(--warning-soft);
     }
 
     .command-card.is-secondary:hover,
@@ -480,7 +590,7 @@
     .command-card:focus-visible,
     .command-card.is-active {
       border-color: var(--cmd-color);
-      background: color-mix(in srgb, var(--cmd-color) 7%, white);
+      background: color-mix(in srgb, var(--cmd-color) 7%, var(--panel));
       transform: translateY(-2px);
       outline: none;
     }
@@ -495,8 +605,8 @@
       align-items: center;
       border-radius: 999px;
       padding: 3px 7px;
-      background: #fff3df;
-      color: #8a4b08;
+      background: var(--warning-soft);
+      color: var(--warning-ink);
       font-size: 0.72rem;
       font-weight: 900;
       white-space: nowrap;
@@ -513,8 +623,8 @@
       display: inline-block;
       padding: 4px 7px;
       border-radius: 6px;
-      background: #172033;
-      color: white;
+      background: var(--solid-bg);
+      color: var(--solid-ink);
       font-size: 0.8rem;
       white-space: normal;
     }
@@ -526,8 +636,8 @@
       place-items: center;
       border: 1px solid var(--line);
       border-radius: 7px;
-      background: #f8fafc;
-      color: #34425a;
+      background: var(--panel-soft);
+      color: var(--code-ink);
       cursor: pointer;
       flex: 0 0 auto;
       font: inherit;
@@ -538,9 +648,9 @@
 
     .copy-button:hover,
     .copy-button:focus-visible {
-      border-color: var(--cmd-color, #172033);
-      background: white;
-      color: var(--cmd-color, #172033);
+      border-color: var(--cmd-color, var(--ink));
+      background: var(--panel-strong);
+      color: var(--cmd-color, var(--ink));
       outline: none;
     }
 
@@ -611,8 +721,8 @@
     .path-steps code {
       border-radius: 6px;
       padding: 2px 5px;
-      background: #eef2f7;
-      color: #172033;
+      background: var(--code-bg);
+      color: var(--code-ink);
       font-size: 0.8rem;
     }
 
@@ -622,8 +732,8 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: #172033;
-      color: white;
+      background: var(--solid-bg);
+      color: var(--solid-ink);
       font-size: 0.72rem;
     }
 
@@ -639,13 +749,13 @@
     .tool-card {
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: #fbfcff;
+      background: var(--panel-soft);
       padding: 12px;
     }
 
     .tool-card.is-danger {
-      border-color: #f2c98d;
-      background: #fffaf2;
+      border-color: var(--warning-line);
+      background: var(--warning-soft);
     }
 
     .tool-card code {
@@ -653,8 +763,8 @@
       margin-bottom: 7px;
       padding: 4px 7px;
       border-radius: 6px;
-      background: #eef2f7;
-      color: #172033;
+      background: var(--code-bg);
+      color: var(--code-ink);
       font-size: 0.8rem;
       white-space: normal;
     }
@@ -695,6 +805,10 @@
         display: grid;
       }
 
+      .control-stack {
+        justify-items: start;
+      }
+
       .command-panel {
         position: static;
       }
@@ -726,12 +840,21 @@
         grid-template-columns: 1fr;
       }
 
-      .mode-switch {
+      .segmented-control {
         width: 100%;
         justify-content: stretch;
       }
 
-      .mode-switch button {
+      .control-stack,
+      .control-group {
+        width: 100%;
+      }
+
+      .control-label {
+        text-align: left;
+      }
+
+      .segmented-control button {
         flex: 1;
       }
 
@@ -760,9 +883,22 @@
         <h1 id="page-title">Interactive Git Helper</h1>
         <p class="intro">Hover or focus a Git area to see the commands that move changes between stash, workspace, staging, local history, and a remote repository.</p>
       </div>
-      <div class="mode-switch" aria-label="Display mode">
-        <button type="button" data-mode="focused" aria-pressed="true">Focused</button>
-        <button type="button" data-mode="all" aria-pressed="false">Everything</button>
+      <div class="control-stack">
+        <div class="control-group">
+          <span class="control-label" id="view-label">View</span>
+          <div class="segmented-control mode-switch" role="group" aria-labelledby="view-label">
+            <button type="button" data-mode="focused" aria-pressed="true">Focused</button>
+            <button type="button" data-mode="all" aria-pressed="false">Everything</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="control-label" id="theme-label">Appearance</span>
+          <div class="segmented-control theme-switch" role="group" aria-labelledby="theme-label">
+            <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+            <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+            <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -861,11 +997,11 @@
 
   <script>
     const zones = {
-      stash: { label: "Stash", x: 140, color: "#7950f2", summary: "Temporary shelf for unfinished work while you switch context.", next: "Use git stash pop when you are ready to bring work back.", nextCommands: ["git stash pop"] },
-      workspace: { label: "Local Workspace", x: 420, color: "#2563eb", summary: "Where file edits live before they are prepared for a commit.", next: "Most common next step: git add <file>.", nextCommands: ["git add <file>"] },
-      staging: { label: "Staging Area", x: 700, color: "#b7791f", summary: "The exact snapshot that will become your next commit.", next: "Most common next step: git commit -m \"message\".", nextCommands: ["git commit -m \"message\""] },
-      local: { label: "Local Repo", x: 980, color: "#0f8f72", summary: "Your local commit history before it is shared.", next: "Most common next step: git push.", nextCommands: ["git push"] },
-      remote: { label: "Remote Repo", x: 1260, color: "#d14343", summary: "The shared repository on GitHub, GitLab, Bitbucket, or another server.", next: "Use git pull to receive changes or git push to share commits.", nextCommands: ["git pull", "git push"] }
+      stash: { label: "Stash", x: 140, color: "var(--violet)", summary: "Temporary shelf for unfinished work while you switch context.", next: "Use git stash pop when you are ready to bring work back.", nextCommands: ["git stash pop"] },
+      workspace: { label: "Local Workspace", x: 420, color: "var(--blue)", summary: "Where file edits live before they are prepared for a commit.", next: "Most common next step: git add <file>.", nextCommands: ["git add <file>"] },
+      staging: { label: "Staging Area", x: 700, color: "var(--amber)", summary: "The exact snapshot that will become your next commit.", next: "Most common next step: git commit -m \"message\".", nextCommands: ["git commit -m \"message\""] },
+      local: { label: "Local Repo", x: 980, color: "var(--green)", summary: "Your local commit history before it is shared.", next: "Most common next step: git push.", nextCommands: ["git push"] },
+      remote: { label: "Remote Repo", x: 1260, color: "var(--red)", summary: "The shared repository on GitHub, GitLab, Bitbucket, or another server.", next: "Use git pull to receive changes or git push to share commits.", nextCommands: ["git pull", "git push"] }
     };
 
     const mainPathCommandIds = new Set(["pull", "add", "commit", "push"]);
@@ -882,7 +1018,7 @@
         title: "Shelve unfinished edits",
         from: "workspace",
         to: "stash",
-        color: "#7950f2",
+        color: "var(--violet)",
         marker: "arrow-violet",
         zones: ["workspace", "stash"],
         note: "Moves tracked edits and staged changes out of your workspace so you can switch context."
@@ -893,7 +1029,7 @@
         title: "Restore shelved work",
         from: "stash",
         to: "workspace",
-        color: "#7950f2",
+        color: "var(--violet)",
         marker: "arrow-violet",
         zones: ["stash", "workspace"],
         risk: "caution",
@@ -906,7 +1042,7 @@
         title: "Copy stash back",
         from: "stash",
         to: "workspace",
-        color: "#7950f2",
+        color: "var(--violet)",
         marker: "arrow-violet",
         zones: ["stash", "workspace"],
         note: "Applies a stash but keeps it available for reuse."
@@ -917,7 +1053,7 @@
         title: "Stage selected changes",
         from: "workspace",
         to: "staging",
-        color: "#b7791f",
+        color: "var(--amber)",
         marker: "arrow-amber",
         zones: ["workspace", "staging"],
         note: "Copies chosen workspace changes into the next commit snapshot."
@@ -928,7 +1064,7 @@
         title: "Unstage changes",
         from: "staging",
         to: "workspace",
-        color: "#b7791f",
+        color: "var(--amber)",
         marker: "arrow-amber",
         zones: ["staging", "workspace"],
         note: "Removes changes from staging while keeping the file edits in your workspace."
@@ -939,7 +1075,7 @@
         title: "Discard workspace edits",
         from: "local",
         to: "workspace",
-        color: "#2563eb",
+        color: "var(--blue)",
         marker: "arrow-blue",
         zones: ["workspace", "local"],
         risk: "danger",
@@ -952,7 +1088,7 @@
         title: "Save staged snapshot",
         from: "staging",
         to: "local",
-        color: "#0f8f72",
+        color: "var(--green)",
         marker: "arrow-green",
         zones: ["staging", "local"],
         note: "Creates a new commit in your local repository from staged changes."
@@ -963,7 +1099,7 @@
         title: "Undo commit, keep staged",
         from: "local",
         to: "staging",
-        color: "#0f8f72",
+        color: "var(--green)",
         marker: "arrow-green",
         zones: ["local", "staging"],
         risk: "danger",
@@ -976,7 +1112,7 @@
         title: "Download remote history",
         from: "remote",
         to: "local",
-        color: "#d14343",
+        color: "var(--red)",
         marker: "arrow-red",
         zones: ["remote", "local"],
         note: "Updates remote-tracking branches without changing your workspace."
@@ -987,7 +1123,7 @@
         title: "Bring remote changes in",
         from: "remote",
         to: "workspace",
-        color: "#d14343",
+        color: "var(--red)",
         marker: "arrow-red",
         zones: ["remote", "workspace"],
         note: "Fetches remote commits, integrates them locally, and updates your files."
@@ -998,7 +1134,7 @@
         title: "Share local commits",
         from: "local",
         to: "remote",
-        color: "#d14343",
+        color: "var(--red)",
         marker: "arrow-red",
         zones: ["local", "remote"],
         note: "Uploads your local commits to the shared remote branch."
@@ -1009,7 +1145,7 @@
         title: "Create a local copy",
         from: "remote",
         to: "workspace",
-        color: "#2563eb",
+        color: "var(--blue)",
         marker: "arrow-blue",
         zones: ["remote", "workspace", "local"],
         note: "Creates a working directory and local repository from an existing remote."
@@ -1059,10 +1195,32 @@
     const toolTitle = document.querySelector("#tool-title");
     const toolList = document.querySelector("#tool-list");
     const modeButtons = [...document.querySelectorAll("[data-mode]")];
+    const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
     let selectedZone = null;
     let pinnedZone = null;
     let displayMode = "focused";
     let pinnedCommandId = null;
+
+    function setTheme(theme) {
+      const nextTheme = ["light", "dark", "system"].includes(theme) ? theme : "system";
+      document.documentElement.dataset.theme = nextTheme;
+      themeButtons.forEach((item) => {
+        item.setAttribute("aria-pressed", String(item.dataset.themeChoice === nextTheme));
+      });
+      try {
+        window.localStorage.setItem("git-helper-theme", nextTheme);
+      } catch {
+        // Ignore storage failures; the visual theme still changes for this page view.
+      }
+    }
+
+    function initialTheme() {
+      try {
+        return window.localStorage.getItem("git-helper-theme") || "system";
+      } catch {
+        return "system";
+      }
+    }
 
     function commandLabel(command) {
       return command
@@ -1209,7 +1367,7 @@
           x2: Math.max(from.x, to.x) - 12,
           y1: y,
           y2: y,
-          stroke: "#dce3ef",
+          stroke: "var(--track)",
           "stroke-width": 28,
           "stroke-linecap": "round"
         });
@@ -1474,6 +1632,11 @@
       });
     });
 
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => setTheme(button.dataset.themeChoice));
+    });
+
+    setTheme(initialTheme());
     drawLifelines();
     updateFlows();
   </script>
