@@ -96,9 +96,9 @@
       position: relative;
       display: grid;
       grid-template-columns: repeat(5, minmax(170px, 1fr));
-      gap: 14px;
-      min-height: 735px;
-      padding: 28px 18px 445px;
+      gap: 12px;
+      min-height: var(--map-height, 560px);
+      padding: 24px 18px var(--map-bottom, 260px);
       border: 1px solid rgba(215, 222, 234, 0.92);
       border-radius: 18px;
       background:
@@ -106,6 +106,7 @@
         rgba(255, 255, 255, 0.76);
       box-shadow: var(--shadow);
       overflow: hidden;
+      transition: min-height 220ms ease, padding-bottom 220ms ease;
     }
 
     .flow-layer {
@@ -113,6 +114,11 @@
       inset: 0;
       pointer-events: none;
       z-index: 1;
+    }
+
+    .command-flow {
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     .lifeline {
@@ -149,14 +155,74 @@
       opacity: 0;
       filter: drop-shadow(0 5px 10px rgba(23, 32, 51, 0.12));
       transition: opacity 160ms ease, stroke-width 160ms ease;
+      stroke-dasharray: var(--path-length, 1);
+      stroke-dashoffset: var(--path-length, 1);
     }
 
     .flow-line.is-visible {
       opacity: 1;
+      animation: draw-flow 520ms ease forwards;
     }
 
     .flow-line.is-active {
       stroke-width: 3.4;
+    }
+
+    .flow-line.is-muted {
+      opacity: 0.34;
+    }
+
+    .flow-pulse {
+      opacity: 0;
+      filter: drop-shadow(0 4px 8px rgba(23, 32, 51, 0.16));
+      transition: opacity 160ms ease;
+      stroke-dasharray: 10 var(--path-length, 120);
+      stroke-dashoffset: var(--path-length, 120);
+    }
+
+    .flow-pulse.is-visible {
+      opacity: 0.88;
+      animation: pulse-travel 1.8s ease-in-out infinite;
+    }
+
+    .flow-pulse.is-muted {
+      opacity: 0.2;
+      animation: none;
+    }
+
+    .git-map.is-everything .flow-pulse.is-visible {
+      opacity: 0;
+      animation: none;
+    }
+
+    .git-map.is-everything .command-flow.is-active .flow-pulse.is-visible,
+    .git-map.is-everything .command-flow:hover .flow-pulse.is-visible {
+      opacity: 0.88;
+      animation: pulse-travel 1.8s ease-in-out infinite;
+    }
+
+    .command-flow.is-primary .flow-line.is-visible {
+      opacity: 1;
+      stroke-width: 3;
+    }
+
+    .command-flow.is-primary .flow-track.is-visible {
+      opacity: 1;
+    }
+
+    .git-map.is-everything .flow-track.is-visible {
+      opacity: 0.62;
+    }
+
+    .git-map.is-everything .flow-line.is-visible {
+      opacity: 0.66;
+      stroke-width: 1.8;
+    }
+
+    .git-map.is-everything .command-flow.is-active .flow-line,
+    .git-map.is-everything .command-flow:hover .flow-line {
+      opacity: 1;
+      stroke-width: 3.2;
     }
 
     .flow-label-bg {
@@ -166,6 +232,7 @@
       stroke-width: 1;
       filter: drop-shadow(0 4px 8px rgba(23, 32, 51, 0.12));
       transition: opacity 160ms ease, stroke 160ms ease;
+      cursor: pointer;
     }
 
     .flow-label-bg.is-visible {
@@ -176,6 +243,17 @@
       stroke-width: 2;
     }
 
+    .flow-label-bg.is-muted,
+    .flow-label.is-muted,
+    .flow-track.is-muted {
+      opacity: 0.28;
+    }
+
+    .flow-label-bg.is-danger {
+      fill: #fff8ed;
+      stroke: #d97706;
+    }
+
     .flow-label {
       opacity: 0;
       fill: #111827;
@@ -183,26 +261,68 @@
       font-size: 12px;
       font-weight: 700;
       transition: opacity 160ms ease;
+      pointer-events: none;
     }
 
     .flow-label.is-visible {
       opacity: 1;
     }
 
+    .flow-label.is-danger {
+      fill: #7c2d12;
+    }
+
+    @keyframes draw-flow {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes pulse-travel {
+      0% {
+        opacity: 0;
+        stroke-dashoffset: var(--path-length, 120);
+      }
+
+      12%,
+      84% {
+        opacity: 0.9;
+      }
+
+      100% {
+        opacity: 0;
+        stroke-dashoffset: 0;
+      }
+    }
+
     .zone {
       position: relative;
       z-index: 2;
-      min-height: 255px;
+      min-height: 228px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--panel);
-      padding: 18px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 16px;
       cursor: pointer;
       box-shadow: 0 8px 22px rgba(23, 32, 51, 0.045);
       transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .git-map.has-selection .zone:not(.is-selected):not(.is-related) {
+      opacity: 0.32;
+      filter: grayscale(0.5);
+      transform: scale(0.985);
+    }
+
+    .git-map.has-selection .zone.is-related:not(.is-selected) {
+      opacity: 0.74;
+    }
+
+    .git-map.has-selection .zone.is-main-path:not(.is-selected) {
+      opacity: 0.9;
     }
 
     .zone:hover,
@@ -224,8 +344,8 @@
     }
 
     .zone-icon {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       display: grid;
       place-items: center;
       border-radius: 12px;
@@ -246,7 +366,7 @@
       margin: 0;
       color: var(--muted);
       line-height: 1.45;
-      font-size: 0.94rem;
+      font-size: 0.91rem;
     }
 
     .zone code {
@@ -266,6 +386,7 @@
       grid-template-columns: minmax(260px, 0.9fr) minmax(320px, 1.35fr);
       gap: 16px;
       margin-top: 18px;
+      align-items: start;
     }
 
     .command-panel,
@@ -278,6 +399,37 @@
 
     .command-panel {
       padding: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .mode-note,
+    .area-summary {
+      margin: 0 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+      padding: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .mode-note[hidden],
+    .area-summary[hidden] {
+      display: none;
+    }
+
+    .mode-note strong,
+    .area-summary strong {
+      color: var(--ink);
+    }
+
+    .area-summary code {
+      border-radius: 6px;
+      padding: 2px 5px;
+      background: #eef2f7;
+      color: #172033;
+      font-size: 0.82rem;
     }
 
     .command-panel h2,
@@ -304,6 +456,21 @@
       cursor: pointer;
       min-height: 106px;
       transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .command-card.is-secondary {
+      opacity: 0.66;
+    }
+
+    .command-card.is-danger {
+      border-color: #f2c98d;
+      background: #fffaf2;
+    }
+
+    .command-card.is-secondary:hover,
+    .command-card.is-secondary:focus-visible,
+    .command-card.is-secondary.is-active {
+      opacity: 1;
     }
 
     .command-card-header {
@@ -481,6 +648,11 @@
       padding: 12px;
     }
 
+    .tool-card.is-danger {
+      border-color: #f2c98d;
+      background: #fffaf2;
+    }
+
     .tool-card code {
       display: inline-block;
       margin-bottom: 7px;
@@ -528,8 +700,13 @@
         display: grid;
       }
 
+      .command-panel {
+        position: static;
+      }
+
       .git-map {
         grid-template-columns: repeat(2, minmax(210px, 1fr));
+        min-height: auto;
         padding-bottom: 28px;
       }
 
@@ -561,6 +738,21 @@
 
       .zone {
         min-height: 190px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .flow-pulse {
+        display: none;
       }
     }
   </style>
@@ -669,7 +861,9 @@
 
       <section class="command-panel">
         <h2 id="command-title">Hover an area</h2>
-        <p class="empty-state" id="command-help"><strong>Focused</strong> mode keeps the map simple. Hover a Git area, or tab to it with the keyboard, to reveal only the commands connected to that area.</p>
+        <p class="mode-note" id="mode-note" hidden></p>
+        <p class="area-summary" id="area-summary" hidden></p>
+        <p class="empty-state" id="command-help"><strong>Start here:</strong> choose <strong>Local Workspace</strong> if you have edited files, or <strong>Remote Repo</strong> if you are cloning, pulling, or pushing. Focused mode keeps the map simple.</p>
         <ul class="command-list" id="command-list"></ul>
         <div class="learn-section" id="tool-section" hidden>
           <h3 id="tool-title">Useful checks</h3>
@@ -681,12 +875,19 @@
 
   <script>
     const zones = {
-      stash: { label: "Stash", x: 140, color: "#7950f2" },
-      workspace: { label: "Local Workspace", x: 420, color: "#2563eb" },
-      staging: { label: "Staging Area", x: 700, color: "#b7791f" },
-      local: { label: "Local Repo", x: 980, color: "#0f8f72" },
-      remote: { label: "Remote Repo", x: 1260, color: "#d14343" }
+      stash: { label: "Stash", x: 140, color: "#7950f2", summary: "Temporary shelf for unfinished work while you switch context.", next: "Use git stash pop when you are ready to bring work back.", nextCommands: ["git stash pop"] },
+      workspace: { label: "Local Workspace", x: 420, color: "#2563eb", summary: "Where file edits live before they are prepared for a commit.", next: "Most common next step: git add <file>.", nextCommands: ["git add <file>"] },
+      staging: { label: "Staging Area", x: 700, color: "#b7791f", summary: "The exact snapshot that will become your next commit.", next: "Most common next step: git commit -m \"message\".", nextCommands: ["git commit -m \"message\""] },
+      local: { label: "Local Repo", x: 980, color: "#0f8f72", summary: "Your local commit history before it is shared.", next: "Most common next step: git push.", nextCommands: ["git push"] },
+      remote: { label: "Remote Repo", x: 1260, color: "#d14343", summary: "The shared repository on GitHub, GitLab, Bitbucket, or another server.", next: "Use git pull to receive changes or git push to share commits.", nextCommands: ["git pull", "git push"] }
     };
+
+    const mainPathCommandIds = new Set(["pull", "add", "commit", "push"]);
+    const workspaceFocusedCommandIds = new Set(["stash-save", "stash-pop", "stash-apply", "add", "restore-staged", "restore", "pull", "commit", "push", "clone"]);
+    const flowStartY = 288;
+    const lifelineStartY = 270;
+    const rowGap = 32;
+    let currentMapHeight = 560;
 
     const commands = [
       {
@@ -709,6 +910,7 @@
         color: "#7950f2",
         marker: "arrow-violet",
         zones: ["stash", "workspace"],
+        risk: "caution",
         caution: "May create conflicts",
         note: "Applies the latest stash and removes it from the stash list."
       },
@@ -754,6 +956,7 @@
         color: "#2563eb",
         marker: "arrow-blue",
         zones: ["workspace", "local"],
+        risk: "danger",
         caution: "Discards edits",
         note: "Replaces a file in your workspace with the last committed version."
       },
@@ -777,6 +980,7 @@
         color: "#0f8f72",
         marker: "arrow-green",
         zones: ["local", "staging"],
+        risk: "danger",
         caution: "Rewrites last local commit",
         note: "Moves the last commit back to staging so you can adjust and recommit."
       },
@@ -863,12 +1067,15 @@
     const commandList = document.querySelector("#command-list");
     const commandTitle = document.querySelector("#command-title");
     const commandHelp = document.querySelector("#command-help");
+    const modeNote = document.querySelector("#mode-note");
+    const areaSummary = document.querySelector("#area-summary");
     const toolSection = document.querySelector("#tool-section");
     const toolTitle = document.querySelector("#tool-title");
     const toolList = document.querySelector("#tool-list");
     const modeButtons = [...document.querySelectorAll("[data-mode]")];
     let selectedZone = null;
     let displayMode = "focused";
+    let pinnedCommandId = null;
 
     function commandLabel(command) {
       return command
@@ -905,14 +1112,43 @@
       return element;
     }
 
+    function isPrimaryCommand(item) {
+      return selectedZone === "workspace" && mainPathCommandIds.has(item.id);
+    }
+
+    function isSecondaryCommand(item) {
+      return selectedZone === "workspace" && !mainPathCommandIds.has(item.id);
+    }
+
+    function updateMapMetrics(commandCount) {
+      const height = displayMode === "all"
+        ? 735
+        : Math.max(430, flowStartY + Math.max(commandCount, 1) * rowGap + 72);
+      currentMapHeight = height;
+      map.style.setProperty("--map-height", `${height}px`);
+      map.style.setProperty("--map-bottom", `${Math.max(170, height - 252)}px`);
+      svg.setAttribute("viewBox", `0 0 1400 ${height}`);
+      document.querySelectorAll("[data-lifeline]").forEach((group) => {
+        const line = group.querySelector(".lifeline-line");
+        const label = group.querySelector(".lifeline-label");
+        if (line) {
+          line.setAttribute("y1", lifelineStartY);
+          line.setAttribute("y2", height - 40);
+        }
+        if (label) {
+          label.setAttribute("y", height - 18);
+        }
+      });
+    }
+
     function drawLifelines() {
       Object.entries(zones).forEach(([key, zone]) => {
         const group = createSvgElement("g", { "data-lifeline": key });
         const line = createSvgElement("line", {
           x1: zone.x,
           x2: zone.x,
-          y1: 285,
-          y2: 696,
+          y1: lifelineStartY,
+          y2: currentMapHeight - 40,
           stroke: zone.color,
           "stroke-width": 1.8,
           "stroke-dasharray": "3 9",
@@ -920,16 +1156,16 @@
         });
         const cap = createSvgElement("circle", {
           cx: zone.x,
-          cy: 285,
+          cy: lifelineStartY,
           r: 5,
           fill: zone.color
         });
         const label = createSvgElement("text", {
           x: zone.x,
-          y: 718,
+          y: currentMapHeight - 18,
           "text-anchor": "middle"
         });
-        line.classList.add("lifeline");
+        line.classList.add("lifeline", "lifeline-line");
         cap.classList.add("lifeline");
         label.classList.add("lifeline-label");
         label.textContent = zone.label;
@@ -941,12 +1177,13 @@
     function drawFlows(items) {
       svg.querySelectorAll(".command-flow").forEach((group) => group.remove());
       items.forEach((item, index) => {
-        const y = 308 + index * 32;
+        const y = flowStartY + index * rowGap;
         const from = zones[item.from];
         const to = zones[item.to];
         const direction = to.x >= from.x ? 1 : -1;
         const startX = from.x + direction * 14;
         const endX = to.x - direction * 18;
+        const pathLength = Math.max(1, Math.abs(endX - startX));
         const text = commandLabel(item.command);
         const labelWidth = Math.max(90, text.length * 7.8 + 26);
         const labelHeight = 22;
@@ -954,7 +1191,12 @@
         const labelY = y - 8;
         const group = createSvgElement("g");
         group.classList.add("command-flow");
+        group.classList.toggle("is-primary", isPrimaryCommand(item));
+        group.classList.toggle("is-secondary", isSecondaryCommand(item));
         group.dataset.commandId = item.id;
+        group.setAttribute("tabindex", "0");
+        group.setAttribute("role", "button");
+        group.setAttribute("aria-label", `${item.command}: ${item.title}`);
 
         const connectorStart = createSvgElement("line", {
           x1: from.x,
@@ -965,6 +1207,7 @@
           "stroke-width": 2.5,
           "stroke-linecap": "round"
         });
+        connectorStart.style.setProperty("--path-length", "10");
         const connectorEnd = createSvgElement("line", {
           x1: to.x,
           x2: to.x,
@@ -974,6 +1217,7 @@
           "stroke-width": 2.5,
           "stroke-linecap": "round"
         });
+        connectorEnd.style.setProperty("--path-length", "10");
         const track = createSvgElement("line", {
           x1: Math.min(from.x, to.x) + 12,
           x2: Math.max(from.x, to.x) - 12,
@@ -993,10 +1237,22 @@
           "stroke-linecap": "round",
           "marker-end": `url(#${item.marker})`
         });
+        path.style.setProperty("--path-length", pathLength);
+        const pulse = createSvgElement("line", {
+          x1: startX,
+          x2: endX,
+          y1: y,
+          y2: y,
+          stroke: item.color,
+          "stroke-width": 5,
+          "stroke-linecap": "round"
+        });
+        pulse.style.setProperty("--path-length", pathLength);
         track.classList.add("flow-track");
         connectorStart.classList.add("flow-line");
         connectorEnd.classList.add("flow-line");
         path.classList.add("flow-line");
+        pulse.classList.add("flow-pulse");
 
         const labelBg = createSvgElement("rect", {
           x: labelX - labelWidth / 2,
@@ -1008,6 +1264,7 @@
         });
         labelBg.style.stroke = item.color;
         labelBg.classList.add("flow-label-bg");
+        labelBg.classList.toggle("is-danger", item.risk === "danger");
 
         const label = createSvgElement("text", {
           x: labelX,
@@ -1015,9 +1272,22 @@
           "text-anchor": "middle"
         });
         label.classList.add("flow-label");
+        label.classList.toggle("is-danger", item.risk === "danger");
         label.textContent = text;
 
-        group.append(track, connectorStart, connectorEnd, path, labelBg, label);
+        group.addEventListener("mouseenter", () => setActiveCommand(item.id));
+        group.addEventListener("mouseleave", () => setActiveCommand(null));
+        group.addEventListener("focus", () => setActiveCommand(item.id));
+        group.addEventListener("blur", () => setActiveCommand(null));
+        group.addEventListener("click", () => selectCommand(item.id));
+        group.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            selectCommand(item.id);
+          }
+        });
+
+        group.append(track, connectorStart, connectorEnd, path, pulse, labelBg, label);
         svg.append(group);
       });
     }
@@ -1029,18 +1299,31 @@
       if (!selectedZone) {
         return [];
       }
+      if (selectedZone === "workspace") {
+        return commands.filter((item) => workspaceFocusedCommandIds.has(item.id));
+      }
       return commands.filter((item) => item.zones.includes(selectedZone));
     }
 
     function setActiveCommand(commandId) {
-      document.querySelectorAll(".flow-track, .flow-line, .flow-label-bg, .flow-label, .command-card").forEach((el) => {
-        el.classList.toggle("is-active", el.dataset.commandId === commandId || el.closest(`[data-command-id="${commandId}"]`));
+      const activeCommandId = commandId || pinnedCommandId;
+      document.querySelectorAll(".command-flow, .flow-track, .flow-line, .flow-pulse, .flow-label-bg, .flow-label, .command-card").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.commandId === activeCommandId || el.closest(`[data-command-id="${activeCommandId}"]`));
       });
       document.querySelectorAll("[data-lifeline]").forEach((group) => {
-        const command = commands.find((item) => item.id === commandId);
+        const command = commands.find((item) => item.id === activeCommandId);
         const active = command && [command.from, command.to].includes(group.dataset.lifeline);
         group.querySelectorAll(".lifeline").forEach((el) => el.classList.toggle("is-active", active));
       });
+    }
+
+    function selectCommand(commandId) {
+      pinnedCommandId = commandId;
+      setActiveCommand(commandId);
+      const card = commandList.querySelector(`[data-command-id="${commandId}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
 
     function renderCommands() {
@@ -1048,10 +1331,13 @@
       commandList.innerHTML = "";
       commandHelp.hidden = items.length > 0;
       commandTitle.textContent = displayMode === "all" ? "Everything Git flows" : selectedZone ? `${zones[selectedZone].label} commands` : "Hover an area";
+      renderSummary();
 
       items.forEach((item) => {
         const li = document.createElement("li");
         li.className = "command-card";
+        li.classList.toggle("is-secondary", isSecondaryCommand(item));
+        li.classList.toggle("is-danger", item.risk === "danger");
         li.tabIndex = 0;
         li.dataset.commandId = item.id;
         li.style.setProperty("--cmd-color", item.color);
@@ -1074,9 +1360,36 @@
         li.addEventListener("focus", () => setActiveCommand(item.id));
         li.addEventListener("mouseleave", () => setActiveCommand(null));
         li.addEventListener("blur", () => setActiveCommand(null));
+        li.addEventListener("click", () => selectCommand(item.id));
         commandList.append(li);
       });
       renderTools();
+    }
+
+    function renderSummary() {
+      if (displayMode === "all") {
+        modeNote.hidden = false;
+        modeNote.innerHTML = "<strong>Everything mode:</strong> use this as a map, not a step-by-step workflow. Hover or click a command pill to connect it with the detail card below.";
+        areaSummary.hidden = true;
+        areaSummary.textContent = "";
+        return;
+      }
+
+      modeNote.hidden = true;
+      modeNote.textContent = "";
+      if (!selectedZone) {
+        areaSummary.hidden = true;
+        areaSummary.textContent = "";
+        return;
+      }
+
+      const zone = zones[selectedZone];
+      let next = escapeHtml(zone.next);
+      zone.nextCommands.forEach((command) => {
+        next = next.replace(escapeHtml(command), `<code>${escapeHtml(command)}</code>`);
+      });
+      areaSummary.hidden = false;
+      areaSummary.innerHTML = `<strong>${escapeHtml(zone.label)}:</strong> ${escapeHtml(zone.summary)}<br>${next}`;
     }
 
     function renderTools() {
@@ -1091,6 +1404,7 @@
       tools.forEach((tool) => {
         const li = document.createElement("li");
         li.className = "tool-card";
+        li.classList.toggle("is-danger", Boolean(tool.caution));
         li.innerHTML = `
           <code>${escapeHtml(tool.command)}</code>
           ${tool.caution ? `<span class="badge">Use carefully</span>` : ""}
@@ -1102,19 +1416,46 @@
 
     function updateFlows() {
       const visible = visibleCommands();
+      if (pinnedCommandId && !visible.some((item) => item.id === pinnedCommandId)) {
+        pinnedCommandId = null;
+      }
+      updateMapMetrics(visible.length);
+      map.classList.toggle("is-everything", displayMode === "all");
+      map.classList.toggle("has-selection", displayMode !== "all" && Boolean(selectedZone));
       drawFlows(visible);
       const items = new Set(visible.map((item) => item.id));
       document.querySelectorAll("[data-command-id]").forEach((group) => {
         const show = items.has(group.dataset.commandId);
-        group.querySelectorAll(".flow-track, .flow-line, .flow-label-bg, .flow-label").forEach((el) => {
+        const command = commands.find((item) => item.id === group.dataset.commandId);
+        const muted = command && isSecondaryCommand(command);
+        group.querySelectorAll(".flow-track, .flow-line, .flow-pulse, .flow-label-bg, .flow-label").forEach((el) => {
           el.classList.toggle("is-visible", show);
+          el.classList.toggle("is-muted", Boolean(muted));
         });
       });
+      const relatedZones = new Set();
+      const mainPathZones = new Set();
+      visible.forEach((item) => {
+        if (selectedZone !== "workspace" || isPrimaryCommand(item)) {
+          [item.from, item.to].forEach((zone) => relatedZones.add(zone));
+        }
+        if (isPrimaryCommand(item)) {
+          [item.from, item.to].forEach((zone) => mainPathZones.add(zone));
+        }
+      });
+      if (selectedZone) {
+        relatedZones.add(selectedZone);
+      }
       document.querySelectorAll("[data-lifeline]").forEach((group) => {
-        const involved = displayMode === "all" || visibleCommands().some((item) => [item.from, item.to].includes(group.dataset.lifeline));
+        const involved = displayMode === "all" || relatedZones.has(group.dataset.lifeline);
         group.querySelectorAll(".lifeline").forEach((el) => el.classList.toggle("is-selected", involved));
       });
+      zoneEls.forEach((el) => {
+        el.classList.toggle("is-related", relatedZones.has(el.dataset.zone));
+        el.classList.toggle("is-main-path", mainPathZones.has(el.dataset.zone));
+      });
       renderCommands();
+      setActiveCommand(null);
     }
 
     function selectZone(zone) {
@@ -1132,6 +1473,10 @@
     modeButtons.forEach((button) => {
       button.addEventListener("click", () => {
         displayMode = button.dataset.mode;
+        if (displayMode === "all") {
+          selectedZone = null;
+          zoneEls.forEach((el) => el.classList.remove("is-selected"));
+        }
         modeButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
         updateFlows();
       });
