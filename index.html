@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Interactive Git Helper</title>
+  <title>Git Map</title>
   <style>
     :root {
       color-scheme: light;
@@ -880,7 +880,7 @@
   <main>
     <section class="topbar" aria-labelledby="page-title">
       <div>
-        <h1 id="page-title">Interactive Git Helper</h1>
+        <h1 id="page-title">Git Map</h1>
         <p class="intro">Hover or focus a Git area to see the commands that move changes between stash, workspace, staging, local history, and a remote repository.</p>
       </div>
       <div class="control-stack">
@@ -1196,6 +1196,8 @@
     const toolList = document.querySelector("#tool-list");
     const modeButtons = [...document.querySelectorAll("[data-mode]")];
     const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
+    const themeStorageKey = "git-map-theme";
+    const legacyThemeStorageKey = "git-helper-theme";
     let selectedZone = null;
     let pinnedZone = null;
     let displayMode = "focused";
@@ -1208,7 +1210,7 @@
         item.setAttribute("aria-pressed", String(item.dataset.themeChoice === nextTheme));
       });
       try {
-        window.localStorage.setItem("git-helper-theme", nextTheme);
+        window.localStorage.setItem(themeStorageKey, nextTheme);
       } catch {
         // Ignore storage failures; the visual theme still changes for this page view.
       }
@@ -1216,7 +1218,9 @@
 
     function initialTheme() {
       try {
-        return window.localStorage.getItem("git-helper-theme") || "system";
+        return window.localStorage.getItem(themeStorageKey)
+          || window.localStorage.getItem(legacyThemeStorageKey)
+          || "system";
       } catch {
         return "system";
       }
