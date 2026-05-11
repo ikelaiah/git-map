@@ -175,59 +175,40 @@
       opacity: 1;
     }
 
+    .flow-ribbon {
+      opacity: 0;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .flow-ribbon.is-visible {
+      opacity: 1;
+      animation: ribbon-in 380ms ease both;
+    }
+
+    .flow-ribbon.is-active {
+      filter: saturate(1.15) brightness(1.02);
+    }
+
+    .flow-ribbon.is-muted {
+      opacity: 0.25;
+    }
+
     .flow-line {
       opacity: 0;
-      filter: drop-shadow(0 5px 10px rgba(23, 32, 51, 0.12));
-      transition: opacity 160ms ease, stroke-width 160ms ease;
-      stroke-dasharray: var(--path-length, 1);
-      stroke-dashoffset: var(--path-length, 1);
+      transition: opacity 160ms ease;
     }
 
     .flow-line.is-visible {
-      opacity: 1;
-      animation: draw-flow 520ms ease forwards;
-    }
-
-    .flow-line.is-active {
-      stroke-width: 3.4;
+      opacity: 0.8;
+      animation: ribbon-in 380ms ease both;
     }
 
     .flow-line.is-muted {
-      opacity: 0.34;
+      opacity: 0.22;
     }
 
-    .flow-pulse {
-      opacity: 0;
-      filter: drop-shadow(0 4px 8px rgba(23, 32, 51, 0.16));
-      transition: opacity 160ms ease;
-      stroke-dasharray: 10 var(--path-length, 120);
-      stroke-dashoffset: var(--path-length, 120);
-    }
-
-    .flow-pulse.is-visible {
-      opacity: 0.88;
-      animation: pulse-travel 1.8s ease-in-out infinite;
-    }
-
-    .flow-pulse.is-muted {
-      opacity: 0.2;
-      animation: none;
-    }
-
-    .git-map.is-everything .flow-pulse.is-visible {
-      opacity: 0;
-      animation: none;
-    }
-
-    .git-map.is-everything .command-flow.is-active .flow-pulse.is-visible,
-    .git-map.is-everything .command-flow:hover .flow-pulse.is-visible {
-      opacity: 0.88;
-      animation: pulse-travel 1.8s ease-in-out infinite;
-    }
-
-    .command-flow.is-primary .flow-line.is-visible {
+    .command-flow.is-primary .flow-ribbon.is-visible {
       opacity: 1;
-      stroke-width: 3;
     }
 
     .command-flow.is-primary .flow-track.is-visible {
@@ -238,52 +219,35 @@
       opacity: 0.62;
     }
 
-    .git-map.is-everything .flow-line.is-visible {
-      opacity: 0.66;
-      stroke-width: 1.8;
+    .git-map.is-everything .flow-ribbon.is-visible {
+      opacity: 0.68;
     }
 
-    .git-map.is-everything .command-flow.is-active .flow-line,
-    .git-map.is-everything .command-flow:hover .flow-line {
-      opacity: 1;
-      stroke-width: 3.2;
-    }
-
-    .flow-label-bg {
-      opacity: 0;
-      fill: rgba(255, 255, 255, 0.98);
-      stroke: rgba(215, 222, 234, 0.96);
-      stroke-width: 1;
-      filter: drop-shadow(0 4px 8px rgba(23, 32, 51, 0.12));
-      transition: opacity 160ms ease, stroke 160ms ease;
-      cursor: pointer;
-    }
-
-    .flow-label-bg.is-visible {
+    .git-map.is-everything .command-flow.is-active .flow-ribbon,
+    .git-map.is-everything .command-flow:hover .flow-ribbon {
       opacity: 1;
     }
 
-    .flow-label-bg.is-active {
-      stroke-width: 2;
-    }
-
-    .flow-label-bg.is-muted,
     .flow-label.is-muted,
     .flow-track.is-muted {
       opacity: 0.28;
     }
 
-    .flow-label-bg.is-danger {
-      fill: #fff8ed;
-      stroke: #d97706;
+    .flow-ribbon.is-danger {
+      stroke: #9a3412;
+      stroke-width: 1.5;
     }
 
     .flow-label {
       opacity: 0;
-      fill: #111827;
+      fill: white;
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(23, 32, 51, 0.2);
+      stroke-width: 2px;
+      stroke-linejoin: round;
       transition: opacity 160ms ease;
       pointer-events: none;
     }
@@ -292,30 +256,23 @@
       opacity: 1;
     }
 
+    .flow-label.is-visible.is-muted {
+      opacity: 0.28;
+    }
+
     .flow-label.is-danger {
-      fill: #7c2d12;
+      fill: white;
     }
 
-    @keyframes draw-flow {
+    @keyframes ribbon-in {
+      from {
+        opacity: 0;
+        transform: translateY(4px) scaleX(0.96);
+      }
+
       to {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    @keyframes pulse-travel {
-      0% {
-        opacity: 0;
-        stroke-dashoffset: var(--path-length, 120);
-      }
-
-      12%,
-      84% {
-        opacity: 0.9;
-      }
-
-      100% {
-        opacity: 0;
-        stroke-dashoffset: 0;
+        opacity: 1;
+        transform: translateY(0) scaleX(1);
       }
     }
 
@@ -793,9 +750,6 @@
         transition-duration: 0.01ms !important;
       }
 
-      .flow-pulse {
-        display: none;
-      }
     }
   </style>
 </head>
@@ -814,23 +768,6 @@
 
     <section class="git-map" aria-label="Git areas">
       <svg class="flow-layer" viewBox="0 0 1400 735" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          </marker>
-          <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#0f8f72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          </marker>
-          <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#b7791f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          </marker>
-          <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#d14343" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          </marker>
-          <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M 1 1 L 8 4 L 1 7" fill="none" stroke="#7950f2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          </marker>
-        </defs>
       </svg>
       <div class="lifeline-labels" aria-hidden="true">
         <span>Stash</span>
@@ -1162,6 +1099,17 @@
       return element;
     }
 
+    function ribbonPoints(startX, endX, y, height, headSize) {
+      const half = height / 2;
+      const direction = endX >= startX ? 1 : -1;
+      if (direction > 0) {
+        const neckX = Math.max(startX + 20, endX - headSize);
+        return `${startX},${y - half} ${neckX},${y - half} ${endX},${y} ${neckX},${y + half} ${startX},${y + half}`;
+      }
+      const neckX = Math.min(startX - 20, endX + headSize);
+      return `${startX},${y - half} ${neckX},${y - half} ${endX},${y} ${neckX},${y + half} ${startX},${y + half}`;
+    }
+
     function isPrimaryCommand(item) {
       return selectedZone === "workspace" && mainPathCommandIds.has(item.id);
     }
@@ -1222,12 +1170,11 @@
         const direction = to.x >= from.x ? 1 : -1;
         const startX = from.x + direction * 14;
         const endX = to.x - direction * 18;
-        const pathLength = Math.max(1, Math.abs(endX - startX));
         const text = commandLabel(item.command);
-        const labelWidth = Math.max(90, text.length * 7.8 + 26);
-        const labelHeight = 22;
+        const ribbonHeight = 24;
+        const arrowHead = 24;
         const labelX = (from.x + to.x) / 2;
-        const labelY = y - 8;
+        const labelY = y + 4;
         const group = createSvgElement("g");
         group.classList.add("command-flow");
         group.classList.toggle("is-primary", isPrimaryCommand(item));
@@ -1263,47 +1210,18 @@
           y1: y,
           y2: y,
           stroke: "#dce3ef",
-          "stroke-width": 7,
+          "stroke-width": 28,
           "stroke-linecap": "round"
         });
-        const path = createSvgElement("line", {
-          x1: startX,
-          x2: endX,
-          y1: y,
-          y2: y,
-          stroke: item.color,
-          "stroke-width": 2.2,
-          "stroke-linecap": "round",
-          "marker-end": `url(#${item.marker})`
+        const ribbon = createSvgElement("polygon", {
+          points: ribbonPoints(startX, endX, y, ribbonHeight, arrowHead),
+          fill: item.color
         });
-        path.style.setProperty("--path-length", pathLength);
-        const pulse = createSvgElement("line", {
-          x1: startX,
-          x2: endX,
-          y1: y,
-          y2: y,
-          stroke: item.color,
-          "stroke-width": 5,
-          "stroke-linecap": "round"
-        });
-        pulse.style.setProperty("--path-length", pathLength);
         track.classList.add("flow-track");
         connectorStart.classList.add("flow-line");
         connectorEnd.classList.add("flow-line");
-        path.classList.add("flow-line");
-        pulse.classList.add("flow-pulse");
-
-        const labelBg = createSvgElement("rect", {
-          x: labelX - labelWidth / 2,
-          y: labelY - 16,
-          width: labelWidth,
-          height: labelHeight,
-          rx: 7,
-          ry: 7
-        });
-        labelBg.style.stroke = item.color;
-        labelBg.classList.add("flow-label-bg");
-        labelBg.classList.toggle("is-danger", item.risk === "danger");
+        ribbon.classList.add("flow-ribbon");
+        ribbon.classList.toggle("is-danger", item.risk === "danger");
 
         const label = createSvgElement("text", {
           x: labelX,
@@ -1326,7 +1244,7 @@
           }
         });
 
-        group.append(track, connectorStart, connectorEnd, path, pulse, labelBg, label);
+        group.append(track, connectorStart, connectorEnd, ribbon, label);
         svg.append(group);
       });
     }
@@ -1346,7 +1264,7 @@
 
     function setActiveCommand(commandId) {
       const activeCommandId = commandId || pinnedCommandId;
-      document.querySelectorAll(".command-flow, .flow-track, .flow-line, .flow-pulse, .flow-label-bg, .flow-label, .command-card").forEach((el) => {
+      document.querySelectorAll(".command-flow, .flow-track, .flow-line, .flow-ribbon, .flow-label, .command-card").forEach((el) => {
         el.classList.toggle("is-active", el.dataset.commandId === activeCommandId || el.closest(`[data-command-id="${activeCommandId}"]`));
       });
       document.querySelectorAll("[data-lifeline]").forEach((group) => {
@@ -1467,7 +1385,7 @@
         const show = items.has(group.dataset.commandId);
         const command = commands.find((item) => item.id === group.dataset.commandId);
         const muted = command && isSecondaryCommand(command);
-        group.querySelectorAll(".flow-track, .flow-line, .flow-pulse, .flow-label-bg, .flow-label").forEach((el) => {
+        group.querySelectorAll(".flow-track, .flow-line, .flow-ribbon, .flow-label").forEach((el) => {
           el.classList.toggle("is-visible", show);
           el.classList.toggle("is-muted", Boolean(muted));
         });

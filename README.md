@@ -17,7 +17,7 @@ A single-page Git visualisation for beginners. It shows the main Git areas:
 - Click another top card to change the pinned area.
 - Press `Enter` or `Space` on a focused top card to pin it with the keyboard.
 - Use **Everything** mode to see the full command map. This clears the pinned area.
-- Click a command pill in the diagram to highlight and jump to its detail card.
+- Click a command ribbon in the diagram to highlight and jump to its detail card.
 - Use the command card **Copy** buttons to copy example commands.
 
 The page also marks risky commands, such as commands that discard edits or rewrite recent local history.
