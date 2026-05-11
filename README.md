@@ -1,9 +1,15 @@
 # Git Map
 
-[![HTML](https://img.shields.io/badge/HTML-single--file-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
+[![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](index.html)
-[![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](index.html)
+[![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](index.html)
+[![No Framework](https://img.shields.io/badge/Framework-none-64748b?style=for-the-badge)](index.html)
+[![No Dependencies](https://img.shields.io/badge/Dependencies-none-22c55e?style=for-the-badge)](index.html)
 [![Theme](https://img.shields.io/badge/Theme-light%20%7C%20dark%20%7C%20system-9b7cff?style=for-the-badge)](index.html)
+[![Offline Ready](https://img.shields.io/badge/Offline-ready-0ea5e9?style=for-the-badge)](index.html)
+[![Responsive](https://img.shields.io/badge/Layout-responsive-8b5cf6?style=for-the-badge)](index.html)
+[![Keyboard Accessible](https://img.shields.io/badge/Keyboard-accessible-06b6d4?style=for-the-badge)](index.html)
+[![Beginner Friendly](https://img.shields.io/badge/Beginner-friendly-f97316?style=for-the-badge)](README.md)
 [![No Build](https://img.shields.io/badge/Build-none-3bc5a7?style=for-the-badge)](index.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
