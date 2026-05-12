@@ -82,6 +82,15 @@ if (!data) {
     if (command.risk && !isNonEmptyString(command.caution)) {
       fail(`Risky command "${command.id}" is missing caution copy.`);
     }
+    if (!command.preview || typeof command.preview !== "object") {
+      fail(`Command "${command.id}" is missing before/after preview data.`);
+    } else {
+      ["before", "after", "effect"].forEach((field) => {
+        if (!isNonEmptyString(command.preview[field])) {
+          fail(`Command "${command.id}" preview is missing ${field}.`);
+        }
+      });
+    }
   });
 
   ["mainPathCommandIds", "workspaceFocusedCommandIds"].forEach((setName) => {
@@ -108,11 +117,16 @@ if (!data) {
     });
   });
 
+  const statusScenarioIds = new Set();
   (data.statusScenarios || []).forEach((scenario) => {
     if (!isNonEmptyString(scenario.id)) {
       fail("A status scenario is missing id.");
       return;
     }
+    if (statusScenarioIds.has(scenario.id)) {
+      fail(`Duplicate status scenario id "${scenario.id}".`);
+    }
+    statusScenarioIds.add(scenario.id);
     ["label", "summary", "zone", "commandId"].forEach((field) => {
       if (!isNonEmptyString(scenario[field])) {
         fail(`Status scenario "${scenario.id}" is missing ${field}.`);
@@ -133,6 +147,55 @@ if (!data) {
             fail(`Status scenario "${scenario.id}" has an empty ${field} command.`);
           }
         });
+      }
+    });
+  });
+
+  (data.statusDetectors || []).forEach((detector, index) => {
+    if (!isNonEmptyString(detector.scenarioId)) {
+      fail(`Status detector ${index} is missing scenarioId.`);
+      return;
+    }
+    if (!statusScenarioIds.has(detector.scenarioId)) {
+      fail(`Status detector ${index} references unknown scenario "${detector.scenarioId}".`);
+    }
+    if (!isNonEmptyString(detector.label)) {
+      fail(`Status detector ${index} is missing label.`);
+    }
+    if (typeof detector.priority !== "number") {
+      fail(`Status detector "${detector.scenarioId}" is missing numeric priority.`);
+    }
+    if (!Array.isArray(detector.patterns) || detector.patterns.length === 0 || !detector.patterns.every(isNonEmptyString)) {
+      fail(`Status detector "${detector.scenarioId}" is missing string patterns.`);
+    }
+  });
+
+  (data.commandJourneys || []).forEach((journey, journeyIndex) => {
+    if (!isNonEmptyString(journey.id)) {
+      fail(`Command journey ${journeyIndex} is missing id.`);
+      return;
+    }
+    ["title", "summary"].forEach((field) => {
+      if (!isNonEmptyString(journey[field])) {
+        fail(`Command journey "${journey.id}" is missing ${field}.`);
+      }
+    });
+    if (!Array.isArray(journey.steps) || journey.steps.length === 0) {
+      fail(`Command journey "${journey.id}" is missing steps.`);
+      return;
+    }
+    journey.steps.forEach((step, stepIndex) => {
+      if (!isNonEmptyString(step.title) || !isNonEmptyString(step.note)) {
+        fail(`Command journey "${journey.id}" step ${stepIndex} is missing title or note.`);
+      }
+      if (!isNonEmptyString(step.zone) || !zoneKeys.has(step.zone)) {
+        fail(`Command journey "${journey.id}" step ${stepIndex} references unknown zone "${step.zone}".`);
+      }
+      if (step.commandId && !commandIds.has(step.commandId)) {
+        fail(`Command journey "${journey.id}" step ${stepIndex} references unknown command "${step.commandId}".`);
+      }
+      if (!step.commandId && !isNonEmptyString(step.command)) {
+        fail(`Command journey "${journey.id}" step ${stepIndex} needs commandId or command.`);
       }
     });
   });

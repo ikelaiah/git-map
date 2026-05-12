@@ -422,7 +422,153 @@ const toolCommands = {
   ]
 };
 
+const commandPreviews = {
+  "stash-save": {
+    before: "Tracked edits are visible in the workspace and may block a branch switch.",
+    after: "Those edits move onto the stash shelf and the workspace returns to a clean checkout.",
+    effect: "Good for pausing work without making a commit."
+  },
+  "stash-pop": {
+    before: "A stash entry is saved away from the working tree.",
+    after: "The latest stash is applied back into the workspace and removed from the stash list.",
+    effect: "Can create conflicts when the files changed since the stash was made."
+  },
+  "stash-apply": {
+    before: "A stash entry is saved away from the working tree.",
+    after: "The stash content is copied back into the workspace and the stash entry remains available.",
+    effect: "Useful when you want to test the stash before deleting it."
+  },
+  "stash-untracked": {
+    before: "Tracked edits and new untracked files are sitting in the workspace.",
+    after: "Both tracked and untracked work are stored in a stash entry.",
+    effect: "Plain git stash leaves untracked files behind; this version includes them."
+  },
+  "stash-branch": {
+    before: "A stash belongs to work that may no longer apply cleanly on the current branch.",
+    after: "A new branch is created from the stash base and the stash is applied there.",
+    effect: "Best when shelved work has grown into its own branch."
+  },
+  add: {
+    before: "Edits are in the workspace but are not part of the next commit yet.",
+    after: "Selected file changes are copied into the staging area.",
+    effect: "Only staged changes become part of the next commit."
+  },
+  "restore-staged": {
+    before: "Changes are staged and ready to become part of the next commit.",
+    after: "Those changes leave staging but remain edited in the workspace.",
+    effect: "Use it to remove accidental files from the next commit."
+  },
+  restore: {
+    before: "A tracked file has workspace edits you have not committed.",
+    after: "That file is reset from the index and the unstaged edits are gone.",
+    effect: "This discards file content, so inspect git diff first."
+  },
+  "restore-all": {
+    before: "Tracked files have unstaged workspace edits.",
+    after: "All tracked workspace edits are discarded.",
+    effect: "This is broad; check git diff before running it."
+  },
+  commit: {
+    before: "The staging area contains the snapshot you want to save.",
+    after: "A new local commit records that snapshot in history.",
+    effect: "The commit stays local until you push it."
+  },
+  "reset-soft": {
+    before: "The latest local commit exists in history.",
+    after: "The branch moves back one commit and the changes stay staged.",
+    effect: "This rewrites local history; avoid it for commits other people may have pulled."
+  },
+  "reset-hard": {
+    before: "Tracked workspace or staged changes differ from HEAD.",
+    after: "Tracked files and staging match HEAD exactly.",
+    effect: "Uncommitted tracked changes are lost."
+  },
+  switch: {
+    before: "Your workspace reflects the current branch.",
+    after: "Your workspace updates to match the target branch.",
+    effect: "Git may ask you to commit or stash first if local edits would be overwritten."
+  },
+  "switch-create": {
+    before: "You are on the current commit of the current branch.",
+    after: "A new branch points at that commit and becomes the active branch.",
+    effect: "Use before starting focused work so commits land in the right place."
+  },
+  merge: {
+    before: "Two branches have separate lines of work.",
+    after: "The source branch changes are integrated into the current branch.",
+    effect: "Git may create a merge commit or stop for conflicts."
+  },
+  rebase: {
+    before: "Your branch has commits based on an older branch point.",
+    after: "Your commits are replayed on top of another branch.",
+    effect: "This rewrites commit IDs; avoid rebasing shared commits."
+  },
+  "cherry-pick": {
+    before: "A useful commit exists on another branch.",
+    after: "That change is copied onto the current branch as a new commit.",
+    effect: "Good for moving one fix without merging a whole branch."
+  },
+  revert: {
+    before: "A committed change exists in history.",
+    after: "A new commit reverses that change.",
+    effect: "This is the safest undo for shared history."
+  },
+  "log-graph": {
+    before: "Branch and commit relationships may be unclear.",
+    after: "You see a compact graph of all known branches, tags, and commits.",
+    effect: "Use before merge, rebase, cherry-pick, or recovery work."
+  },
+  blame: {
+    before: "A file line changed, but the responsible commit is unknown.",
+    after: "Each line is annotated with the last commit that touched it.",
+    effect: "Use for investigation, not for changing files."
+  },
+  tag: {
+    before: "A commit marks an important point such as a release.",
+    after: "A named tag points at that commit.",
+    effect: "Tags are useful for releases and deployment references."
+  },
+  fetch: {
+    before: "Your local view of the remote may be stale.",
+    after: "Remote-tracking branches update without changing workspace files.",
+    effect: "Good first step before comparing or deciding whether to pull."
+  },
+  pull: {
+    before: "The remote may have commits you do not have locally.",
+    after: "Remote commits are fetched and integrated, then workspace files update.",
+    effect: "Pull before pushing when the remote moved ahead."
+  },
+  push: {
+    before: "Local commits exist that the remote does not have.",
+    after: "Those commits are uploaded to the shared remote branch.",
+    effect: "Push publishes your local branch history."
+  },
+  "remote-add": {
+    before: "The local repository has no saved remote destination.",
+    after: "origin points at the remote URL.",
+    effect: "After this, push and pull can target origin."
+  },
+  clone: {
+    before: "The project exists only on a remote server.",
+    after: "You have a local repository and workspace checked out from that remote.",
+    effect: "This is usually the first command for joining an existing project."
+  }
+};
+
+commands.forEach((command) => {
+  command.preview = commandPreviews[command.id];
+});
+
 const statusScenarios = [
+  {
+    id: "clean",
+    label: "Clean working tree",
+    zone: "remote",
+    commandId: "pull",
+    summary: "There are no local file edits or staged changes waiting to be saved.",
+    checks: ["git status", "git fetch"],
+    next: ["git pull", "git switch -c <branch>"]
+  },
   {
     id: "unstaged",
     label: "Unstaged changes",
@@ -485,6 +631,158 @@ const statusScenarios = [
     summary: "Git sees new files that are not part of the next commit yet.",
     checks: ["git status"],
     next: ["git add <file>", "git clean -fd"]
+  },
+  {
+    id: "new-repo",
+    label: "New repository",
+    zone: "workspace",
+    commandId: "add",
+    summary: "This repository has no commits yet, so the first snapshot still needs to be staged and committed.",
+    checks: ["git status"],
+    next: ["git add <file>", "git commit -m \"message\"", "git remote add origin <url>"]
+  }
+];
+
+const statusDetectors = [
+  {
+    scenarioId: "conflict",
+    label: "Conflict markers",
+    priority: 100,
+    patterns: ["unmerged paths", "both modified:", "both added:", "deleted by us:", "deleted by them:", "CONFLICT", "fix conflicts and run"]
+  },
+  {
+    scenarioId: "diverged",
+    label: "Diverged branch",
+    priority: 88,
+    patterns: ["have diverged", "and have 1 and", "different commits each"]
+  },
+  {
+    scenarioId: "staged",
+    label: "Staged snapshot",
+    priority: 82,
+    patterns: ["changes to be committed"]
+  },
+  {
+    scenarioId: "unstaged",
+    label: "Unstaged edits",
+    priority: 78,
+    patterns: ["changes not staged for commit"]
+  },
+  {
+    scenarioId: "untracked",
+    label: "Untracked files",
+    priority: 74,
+    patterns: ["untracked files:"]
+  },
+  {
+    scenarioId: "behind",
+    label: "Behind remote",
+    priority: 68,
+    patterns: ["your branch is behind"]
+  },
+  {
+    scenarioId: "ahead",
+    label: "Ahead of remote",
+    priority: 64,
+    patterns: ["your branch is ahead"]
+  },
+  {
+    scenarioId: "new-repo",
+    label: "No commits yet",
+    priority: 58,
+    patterns: ["no commits yet", "initial commit"]
+  },
+  {
+    scenarioId: "clean",
+    label: "Clean tree",
+    priority: 10,
+    patterns: ["nothing to commit, working tree clean", "working tree clean"]
+  }
+];
+
+const sampleStatusOutput = `On branch feature-map
+Your branch is ahead of 'origin/feature-map' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  modified:   src/app.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+  src/status-parser.js`;
+
+const commandJourneys = [
+  {
+    id: "edit-push",
+    title: "Edit files, commit, push",
+    summary: "The everyday path from changed files to a shared branch.",
+    steps: [
+      { title: "Sync first", commandId: "pull", zone: "remote", note: "Start by bringing in remote commits so your work is based on the latest shared branch." },
+      { title: "Review edits", command: "git diff", zone: "workspace", note: "Inspect unstaged workspace changes before choosing what belongs in the next commit." },
+      { title: "Stage the right files", commandId: "add", zone: "workspace", note: "Move only the intended file changes into the staging area." },
+      { title: "Check the snapshot", command: "git diff --staged", zone: "staging", note: "Confirm the staged snapshot is exactly what you want to save." },
+      { title: "Commit locally", commandId: "commit", zone: "staging", note: "Save the staged snapshot into local history." },
+      { title: "Publish", commandId: "push", zone: "local", note: "Upload local commits to the shared remote branch." }
+    ]
+  },
+  {
+    id: "stage-carefully",
+    title: "Stage only what belongs",
+    summary: "A careful path for turning a messy workspace into a clean commit.",
+    steps: [
+      { title: "See all changes", command: "git status", zone: "workspace", note: "Start with the file-level state Git sees." },
+      { title: "Inspect content", command: "git diff", zone: "workspace", note: "Read unstaged edits before staging anything." },
+      { title: "Stage hunks", command: "git add -p", zone: "staging", note: "Choose individual hunks when one file contains multiple unrelated changes." },
+      { title: "Unstage mistakes", commandId: "restore-staged", zone: "staging", note: "Move accidental staged changes back to the workspace without discarding them." },
+      { title: "Commit the focused snapshot", commandId: "commit", zone: "staging", note: "Commit once the staged set tells one clear story." }
+    ]
+  },
+  {
+    id: "conflict-rescue",
+    title: "Resolve a merge conflict",
+    summary: "The calm route after Git stops a merge and asks for a decision.",
+    steps: [
+      { title: "Read the conflict state", command: "git status", zone: "workspace", note: "Find files listed under unmerged paths." },
+      { title: "Inspect conflict hunks", command: "git diff", zone: "workspace", note: "Use the diff to decide what each conflicted file should contain." },
+      { title: "Edit files", command: "# edit conflicted files", zone: "workspace", note: "Remove conflict markers and keep the final intended content." },
+      { title: "Mark resolved", commandId: "add", zone: "workspace", note: "Staging the file tells Git the conflict is resolved." },
+      { title: "Finish the merge", command: "git commit", zone: "local", note: "Complete the merge commit after all conflicted files are resolved." }
+    ]
+  },
+  {
+    id: "push-rejected",
+    title: "Push was rejected",
+    summary: "Recover when the remote branch moved before your push.",
+    steps: [
+      { title: "Update remote view", commandId: "fetch", zone: "remote", note: "Download remote history without changing your workspace." },
+      { title: "Read the graph", commandId: "log-graph", zone: "local", note: "See whether your branch is behind or diverged." },
+      { title: "Integrate remote commits", commandId: "pull", zone: "remote", note: "Bring remote commits into your local branch." },
+      { title: "Resolve if needed", command: "git status", zone: "workspace", note: "If Git reports conflicts, resolve and stage them before continuing." },
+      { title: "Push again", commandId: "push", zone: "local", note: "Publish after your branch includes the remote changes." }
+    ]
+  },
+  {
+    id: "safe-undo",
+    title: "Undo a shared commit safely",
+    summary: "Back out a committed change without rewriting public history.",
+    steps: [
+      { title: "Find the commit", commandId: "log-graph", zone: "local", note: "Identify the commit you need to undo." },
+      { title: "Create the reversing commit", commandId: "revert", zone: "local", note: "Record a new commit that reverses the chosen change." },
+      { title: "Check the result", command: "git status", zone: "workspace", note: "Confirm the working tree is clean after the revert commit." },
+      { title: "Share the undo", commandId: "push", zone: "local", note: "Push the new revert commit so teammates get the same correction." }
+    ]
+  },
+  {
+    id: "stash-interruption",
+    title: "Pause work for an interruption",
+    summary: "Shelve unfinished edits, switch context, then bring them back.",
+    steps: [
+      { title: "Check what will move", command: "git status", zone: "workspace", note: "Review changed and untracked files before stashing." },
+      { title: "Shelve work", commandId: "stash-save", zone: "workspace", note: "Move tracked edits and staged changes out of the workspace." },
+      { title: "Switch context", commandId: "switch", zone: "local", note: "Move to the branch that needs attention." },
+      { title: "Return to your work", commandId: "stash-pop", zone: "stash", note: "Apply the shelved work back into the workspace when ready." }
+    ]
   }
 ];
 
@@ -495,6 +793,9 @@ const statusScenarios = [
     workspaceFocusedCommandIds,
     commands,
     toolCommands,
-    statusScenarios
+    statusScenarios,
+    statusDetectors,
+    sampleStatusOutput,
+    commandJourneys
   };
 })();

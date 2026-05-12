@@ -2,6 +2,7 @@
 
 [🌐 Live Demo](https://ikelaiah.github.io/git-map/)
 
+[![Version](https://img.shields.io/badge/Version-1.0.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
 [![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
@@ -16,7 +17,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
 
-Git Map is a dependency-free Git visualisation for beginners. The overview page shows the main Git areas:
+Git Map is a dependency-free Git visualisation and situation solver for beginners. The overview page shows the main Git areas:
 
 - 📦 Stash
 - 📝 Local Workspace
@@ -24,7 +25,7 @@ Git Map is a dependency-free Git visualisation for beginners. The overview page 
 - 🗂️ Local Repo
 - 🌐 Remote Repo
 
-It also includes `branch-map.html`, an interactive Git Branch Map sandbox where visual branch, commit, switch, and merge actions produce the Git command sequence behind them.
+Version 1.0 adds a pasteable `git status` analyzer, guided scenario journeys, and before/after command previews so users can connect their current Git state to the next useful route. It also includes `branch-map.html`, an interactive Git Branch Map sandbox where visual branch, commit, switch, and merge actions produce the Git command sequence behind them.
 
 ## 🧭 How To Use
 
@@ -39,6 +40,9 @@ It also includes `branch-map.html`, an interactive Git Branch Map sandbox where 
 - Use **Light**, **Dark**, or **System** appearance mode to match your preferred theme.
 - Follow the **Daily path** markers for the common `git pull`, `git add`, `git commit`, and `git push` flow.
 - Click a command ribbon in the diagram to highlight and jump to its detail card.
+- Paste real `git status` output into **Paste git status** to detect clean, staged, unstaged, untracked, ahead, behind, diverged, and conflict states.
+- Use **Scenario journeys** to step through common workflows such as edit-to-push, careful staging, conflict rescue, rejected push recovery, safe undo, and stash interruptions.
+- Read **Before**, **After**, and **Effect** previews on command cards to understand what each command changes before copying it.
 - Use **What State Am I In?** to match common `git status` situations with the next useful command.
 - Use the command card **Copy** buttons to copy example commands.
 - Open **Git Branch Map** to click commits on `main`, create feature branches from selected commits, add commits, merge branches, simulate a conflict, and review the generated command history.
@@ -54,7 +58,7 @@ The project stays no-build and dependency-free, but the page is split by respons
 - `index.html`: page shell and static content.
 - `branch-map.html`: interactive branch, commit, and merge sandbox.
 - `src/styles.css`: theme tokens, layout, and responsive styles.
-- `src/data.js`: Git areas, command flows, and helper commands.
+- `src/data.js`: Git areas, command flows, before/after previews, status detectors, and scenario journeys.
 - `src/branch-map-model.js`: pure branch sandbox constants, command generators, and validation helpers.
 - `src/app.js`: rendering, SVG map drawing, and interactions.
 - `src/branch-map.js`: branch sandbox state, SVG graph drawing, undo/reset, and command history.
@@ -68,6 +72,15 @@ node scripts/validate.mjs
 
 ## 🧰 Command Coverage
 
+- `git status`: inspect branch, workspace, staging, conflict, and remote tracking state.
+- `git add <file>`: stage selected workspace changes.
+- `git add -p`: stage selected hunks instead of whole files.
+- `git commit -m "message"`: save staged changes as a local commit.
+- `git push`: publish local commits to the shared remote branch.
+- `git pull`: fetch and integrate remote commits into the current branch.
+- `git fetch`: update remote-tracking branches without changing workspace files.
+- `git diff`: review unstaged workspace edits.
+- `git diff --staged`: review the staged snapshot before committing.
 - `git switch <branch>`: move to another branch.
 - `git switch -c <branch>`: create and move to a new branch.
 - `git merge <branch>`: bring another branch into the current branch.

@@ -4,7 +4,10 @@ const {
   workspaceFocusedCommandIds,
   commands,
   toolCommands,
-  statusScenarios
+  statusScenarios,
+  statusDetectors,
+  sampleStatusOutput,
+  commandJourneys
 } = window.gitMapData;
 
 const flowStartY = 288;
@@ -34,6 +37,17 @@ const riskButtons = [...document.querySelectorAll("[data-risk-filter]")];
 const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
 const statusHelperChoice = document.querySelector("#status-helper-choice");
 const statusHelperResult = document.querySelector("#status-helper-result");
+const statusPaste = document.querySelector("#status-paste");
+const analyzeStatusButton = document.querySelector("#analyze-status");
+const loadStatusSampleButton = document.querySelector("#load-status-sample");
+const clearStatusButton = document.querySelector("#clear-status");
+const statusAnalysis = document.querySelector("#status-analysis");
+const journeyChoice = document.querySelector("#journey-choice");
+const journeyCurrent = document.querySelector("#journey-current");
+const journeySteps = document.querySelector("#journey-steps");
+const journeyReceipt = document.querySelector("#journey-receipt");
+const journeyPrevButton = document.querySelector("#journey-prev");
+const journeyNextButton = document.querySelector("#journey-next");
 const themeStorageKey = "git-map-theme";
 const legacyThemeStorageKey = "git-helper-theme";
 let selectedZone = null;
@@ -41,6 +55,8 @@ let pinnedZone = null;
 let displayMode = "focused";
 let riskFilter = "safe";
 let pinnedCommandId = null;
+let activeJourneyId = commandJourneys[0]?.id || null;
+let activeJourneyStep = 0;
 
 function setTheme(theme) {
   const nextTheme = ["light", "dark", "system"].includes(theme) ? theme : "system";
@@ -76,7 +92,7 @@ function commandLabel(command) {
 }
 
 function escapeHtml(value) {
-  return value.replace(/[&<>"']/g, (char) => ({
+  return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -220,6 +236,49 @@ function routePlaceText(item) {
   return `${from.place || from.label} -> ${to.place || to.label}`;
 }
 
+function commandById(commandId) {
+  return commands.find((item) => item.id === commandId);
+}
+
+function previewForCommand(item) {
+  if (item?.preview) {
+    return item.preview;
+  }
+  if (!item) {
+    return null;
+  }
+  const from = zones[item.from]?.label || "current state";
+  const to = zones[item.to]?.label || "next state";
+  return {
+    before: item.from === item.to ? `You are working inside ${from}.` : `Work is associated with ${from}.`,
+    after: item.from === item.to ? `${from} changes shape but stays in the same area.` : `Work moves toward ${to}.`,
+    effect: item.note
+  };
+}
+
+function renderPreviewMarkup(item, className = "command-preview") {
+  const preview = previewForCommand(item);
+  if (!preview) {
+    return "";
+  }
+  return `
+    <div class="${className}">
+      <div>
+        <span>Before</span>
+        <p>${escapeHtml(preview.before)}</p>
+      </div>
+      <div>
+        <span>After</span>
+        <p>${escapeHtml(preview.after)}</p>
+      </div>
+      <div>
+        <span>Effect</span>
+        <p>${escapeHtml(preview.effect)}</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderSpotlight(items, commandId) {
   if (!items.length) {
     commandSpotlight.hidden = true;
@@ -266,6 +325,7 @@ function renderSpotlight(items, commandId) {
         <dd>${escapeHtml(commandWatchText(item))}</dd>
       </div>
     </dl>
+    ${renderPreviewMarkup(item, "spotlight-preview")}
   `;
   commandSpotlight.querySelector("[data-spotlight-copy]").addEventListener("click", (event) => {
     copyCommand(item.command, event.currentTarget);
@@ -502,6 +562,7 @@ function renderCommands() {
         <button class="copy-button" type="button" aria-label="Copy ${escapeHtml(item.command)}">Copy</button>
       </div>
       <p>${escapeHtml(item.note)}</p>
+      ${renderPreviewMarkup(item)}
     `;
     li.querySelector(".copy-button").addEventListener("click", (event) => {
       event.stopPropagation();
@@ -620,6 +681,199 @@ function focusStatusScenario(scenario) {
   }
 }
 
+function scenarioById(scenarioId) {
+  return statusScenarios.find((scenario) => scenario.id === scenarioId);
+}
+
+function filteredNextCommands(scenario) {
+  return scenario.next.filter((command) => riskFilter === "all" || !isRiskyCommandText(command));
+}
+
+function renderCommandPills(commandItems) {
+  return commandItems.map((command) => `<code>${escapeHtml(command)}</code>`).join("");
+}
+
+function statusMatchesFromText(value) {
+  const text = value.trim().toLowerCase();
+  if (!text) {
+    return [];
+  }
+  const matches = statusDetectors
+    .filter((detector) => detector.patterns.some((pattern) => text.includes(pattern.toLowerCase())))
+    .map((detector) => ({
+      detector,
+      scenario: scenarioById(detector.scenarioId)
+    }))
+    .filter((match) => match.scenario)
+    .sort((a, b) => b.detector.priority - a.detector.priority);
+  const seen = new Set();
+  return matches.filter((match) => {
+    if (seen.has(match.scenario.id)) {
+      return false;
+    }
+    seen.add(match.scenario.id);
+    return true;
+  });
+}
+
+function renderStatusAnalysis(matches, hasInput = Boolean(statusPaste?.value.trim())) {
+  if (!statusAnalysis) {
+    return;
+  }
+  if (!hasInput) {
+    statusAnalysis.innerHTML = `
+      <div class="status-analysis-empty">
+        <strong>No status pasted yet</strong>
+        <p>Paste the output from <code>git status</code> to get a route through the map.</p>
+      </div>
+    `;
+    return;
+  }
+  if (!matches.length) {
+    statusAnalysis.innerHTML = `
+      <div class="status-analysis-empty">
+        <strong>No clear match</strong>
+        <p>The parser looks for clean, staged, unstaged, untracked, ahead, behind, diverged, and conflict states. Run <code>git status</code> again and paste the full output.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const [primary, ...secondary] = matches;
+  const scenario = primary.scenario;
+  const nextCommands = filteredNextCommands(scenario);
+  const hiddenRiskyCount = scenario.next.length - nextCommands.length;
+  statusAnalysis.innerHTML = `
+    <div class="status-analysis-card">
+      <span class="analysis-kicker">Primary state</span>
+      <strong>${escapeHtml(scenario.label)}</strong>
+      <p>${escapeHtml(scenario.summary)}</p>
+      <div class="status-helper-groups">
+        <div>
+          <span>Check</span>
+          ${renderCommandPills(scenario.checks)}
+        </div>
+        <div>
+          <span>Next</span>
+          ${renderCommandPills(nextCommands)}
+        </div>
+      </div>
+      ${hiddenRiskyCount ? `<small>${hiddenRiskyCount} risky option${hiddenRiskyCount === 1 ? "" : "s"} hidden.</small>` : ""}
+      ${secondary.length ? `
+        <div class="analysis-signals">
+          <span>Also detected</span>
+          ${secondary.map((match) => `<b>${escapeHtml(match.scenario.label)}</b>`).join("")}
+        </div>
+      ` : ""}
+      <button class="status-helper-action" type="button" data-analysis-focus>Show route</button>
+    </div>
+  `;
+  statusAnalysis.querySelector("[data-analysis-focus]").addEventListener("click", () => {
+    focusStatusScenario(scenario);
+  });
+}
+
+function analyzeStatus(options = {}) {
+  const shouldFocus = options.focus !== false;
+  const matches = statusMatchesFromText(statusPaste?.value || "");
+  renderStatusAnalysis(matches);
+  if (shouldFocus && matches[0]) {
+    focusStatusScenario(matches[0].scenario);
+  }
+}
+
+function currentJourney() {
+  return commandJourneys.find((journey) => journey.id === activeJourneyId) || commandJourneys[0];
+}
+
+function commandTextForJourneyStep(step) {
+  if (step.commandId) {
+    return commandById(step.commandId)?.command || "";
+  }
+  return step.command || "";
+}
+
+function focusJourneyStep(step) {
+  const command = step.commandId ? commandById(step.commandId) : null;
+  const zone = step.zone || command?.from || "workspace";
+  centerZoneInMap(zone);
+  selectZone(zone, { pin: true, force: true });
+  if (command && visibleCommands().some((item) => item.id === command.id)) {
+    selectCommand(command.id);
+  }
+}
+
+function setJourneyStep(index, options = {}) {
+  const journey = currentJourney();
+  if (!journey) {
+    return;
+  }
+  activeJourneyStep = Math.max(0, Math.min(index, journey.steps.length - 1));
+  renderJourney();
+  if (options.focus !== false) {
+    focusJourneyStep(journey.steps[activeJourneyStep]);
+  }
+}
+
+function renderJourneyOptions() {
+  if (!journeyChoice) {
+    return;
+  }
+  journeyChoice.innerHTML = commandJourneys.map((journey) => `
+    <option value="${escapeHtml(journey.id)}">${escapeHtml(journey.title)}</option>
+  `).join("");
+  journeyChoice.value = activeJourneyId;
+}
+
+function renderJourney() {
+  if (!journeyCurrent || !journeySteps || !journeyReceipt) {
+    return;
+  }
+  const journey = currentJourney();
+  if (!journey) {
+    journeyCurrent.innerHTML = "";
+    journeySteps.innerHTML = "";
+    journeyReceipt.innerHTML = "";
+    return;
+  }
+  const step = journey.steps[activeJourneyStep] || journey.steps[0];
+  const command = step.commandId ? commandById(step.commandId) : null;
+  const commandText = commandTextForJourneyStep(step);
+  journeyCurrent.style.setProperty("--journey-color", command?.color || zones[step.zone]?.color || "var(--blue)");
+  journeyCurrent.innerHTML = `
+    <span>Step ${activeJourneyStep + 1} of ${journey.steps.length}</span>
+    <strong>${escapeHtml(step.title)}</strong>
+    ${commandText ? `<code>${escapeHtml(commandText)}</code>` : ""}
+    <p>${escapeHtml(step.note)}</p>
+    ${command ? renderPreviewMarkup(command, "journey-preview") : ""}
+  `;
+  journeySteps.innerHTML = journey.steps.map((item, index) => {
+    const itemCommand = item.commandId ? commandById(item.commandId) : null;
+    const itemColor = itemCommand?.color || zones[item.zone]?.color || "var(--blue)";
+    return `
+      <li>
+        <button type="button" data-journey-step="${index}" style="--journey-color: ${escapeHtml(itemColor)}" aria-current="${index === activeJourneyStep ? "step" : "false"}">
+          <span>${index + 1}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+        </button>
+      </li>
+    `;
+  }).join("");
+  journeyReceipt.innerHTML = `
+    <span>Command receipt</span>
+    <pre><code>${journey.steps.map(commandTextForJourneyStep).filter(Boolean).map(escapeHtml).join("\n")}</code></pre>
+  `;
+  journeySteps.querySelectorAll("[data-journey-step]").forEach((button) => {
+    button.addEventListener("click", () => setJourneyStep(Number(button.dataset.journeyStep)));
+  });
+  if (journeyPrevButton) {
+    journeyPrevButton.disabled = activeJourneyStep === 0;
+  }
+  if (journeyNextButton) {
+    journeyNextButton.disabled = activeJourneyStep >= journey.steps.length - 1;
+  }
+}
+
 function updateFlows() {
   const visible = visibleCommands();
   const visibleMap = visible.filter((item) => item.from !== item.to);
@@ -731,12 +985,61 @@ riskButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setRiskFilter(button.dataset.riskFilter);
     renderStatusHelper();
+    analyzeStatus({ focus: false });
     updateFlows();
   });
 });
 
 if (statusHelperChoice) {
   statusHelperChoice.addEventListener("change", renderStatusHelper);
+}
+
+if (analyzeStatusButton) {
+  analyzeStatusButton.addEventListener("click", () => analyzeStatus());
+}
+
+if (loadStatusSampleButton && statusPaste) {
+  loadStatusSampleButton.addEventListener("click", () => {
+    statusPaste.value = sampleStatusOutput;
+    analyzeStatus();
+  });
+}
+
+if (clearStatusButton && statusPaste) {
+  clearStatusButton.addEventListener("click", () => {
+    statusPaste.value = "";
+    renderStatusAnalysis([], false);
+    statusPaste.focus();
+  });
+}
+
+if (statusPaste) {
+  statusPaste.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      analyzeStatus();
+    }
+  });
+}
+
+if (journeyChoice) {
+  journeyChoice.addEventListener("change", () => {
+    activeJourneyId = journeyChoice.value;
+    activeJourneyStep = 0;
+    renderJourney();
+    const journey = currentJourney();
+    if (journey) {
+      focusJourneyStep(journey.steps[0]);
+    }
+  });
+}
+
+if (journeyPrevButton) {
+  journeyPrevButton.addEventListener("click", () => setJourneyStep(activeJourneyStep - 1));
+}
+
+if (journeyNextButton) {
+  journeyNextButton.addEventListener("click", () => setJourneyStep(activeJourneyStep + 1));
 }
 
 mapJumpButtons.forEach((button) => {
@@ -756,6 +1059,9 @@ themeButtons.forEach((button) => {
 setTheme(initialTheme());
 setRiskFilter("safe");
 renderStatusHelperOptions();
+renderStatusAnalysis([], false);
+renderJourneyOptions();
+renderJourney();
 drawLifelines();
 selectZone("workspace");
 window.requestAnimationFrame(() => centerZoneInMap("workspace"));

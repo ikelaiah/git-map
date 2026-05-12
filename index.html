@@ -55,6 +55,53 @@
       </div>
     </div>
 
+    <section class="workflow-console" aria-labelledby="workflow-title">
+      <div class="workflow-heading">
+        <span>Situation solver</span>
+        <h2 id="workflow-title">Match a real Git state to the next route</h2>
+      </div>
+
+      <div class="workflow-grid">
+        <section class="workflow-card status-lens" aria-labelledby="status-lens-title">
+          <div class="workflow-card-header">
+            <div>
+              <h2 id="status-lens-title">Paste git status</h2>
+              <p>Analyze branch state, staged files, workspace edits, conflicts, and remote drift.</p>
+            </div>
+          </div>
+          <label class="status-input-label" for="status-paste">Status output</label>
+          <textarea id="status-paste" rows="8" spellcheck="false" placeholder="On branch main&#10;Changes not staged for commit:&#10;  modified:   src/app.js"></textarea>
+          <div class="workflow-actions">
+            <button class="status-helper-action" type="button" id="analyze-status">Analyze</button>
+            <button type="button" id="load-status-sample">Sample</button>
+            <button type="button" id="clear-status">Clear</button>
+          </div>
+          <div class="status-analysis" id="status-analysis" aria-live="polite"></div>
+        </section>
+
+        <section class="workflow-card journey-panel" aria-labelledby="journey-title">
+          <div class="workflow-card-header">
+            <div>
+              <h2 id="journey-title">Scenario journeys</h2>
+              <p>Step through common Git situations and watch the map follow the command path.</p>
+            </div>
+            <label class="journey-select-label">
+              <span>Journey</span>
+              <select id="journey-choice"></select>
+            </label>
+          </div>
+
+          <div class="journey-current" id="journey-current" aria-live="polite"></div>
+          <div class="journey-controls">
+            <button type="button" id="journey-prev">Previous</button>
+            <button class="status-helper-action" type="button" id="journey-next">Next step</button>
+          </div>
+          <ol class="journey-steps" id="journey-steps"></ol>
+          <div class="journey-receipt" id="journey-receipt"></div>
+        </section>
+      </div>
+    </section>
+
     <section class="details" aria-live="polite">
       <aside class="legend">
         <h2>How To Read It</h2>
