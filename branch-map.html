@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git Branch Map</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main>
+    <section class="topbar branch-topbar" aria-labelledby="page-title">
+      <div>
+        <h1 id="page-title">Git Branch Map</h1>
+        <p class="intro">Create branches, add commits, switch, and merge visually. Every action writes the Git commands that would produce the graph.</p>
+        <nav class="page-tabs" aria-label="Git map pages">
+          <a href="index.html">Git Map</a>
+          <a href="branch-map.html" aria-current="page">Git Branch Map</a>
+        </nav>
+      </div>
+      <div class="control-stack">
+        <div class="control-group">
+          <span class="control-label" id="theme-label">Appearance</span>
+          <div class="segmented-control theme-switch" role="group" aria-labelledby="theme-label">
+            <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+            <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+            <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="branch-workbench" aria-label="Interactive Git branch sandbox">
+      <section class="branch-stage" aria-labelledby="stage-title">
+        <div class="branch-stage-header">
+          <div>
+            <h2 id="stage-title">Branch Graph</h2>
+            <p id="stage-hint">Click a commit on <strong>main</strong> to create a branch, then add commits or merge it back.</p>
+          </div>
+          <div class="branch-current" aria-live="polite">
+            <span>Current branch</span>
+            <strong id="current-branch">main</strong>
+          </div>
+        </div>
+        <div class="branch-graph-shell">
+          <svg class="branch-graph" id="branch-graph" viewBox="0 0 980 420" role="img" aria-labelledby="graph-title graph-desc">
+            <title id="graph-title">Interactive Git branch graph</title>
+            <desc id="graph-desc">A visual Git graph with clickable commits and branch lanes.</desc>
+          </svg>
+        </div>
+      </section>
+
+      <aside class="branch-controls" aria-label="Git branch actions">
+        <section class="branch-panel">
+          <h2>Actions</h2>
+
+          <div class="action-section">
+            <div class="section-title-row">
+              <h3>Branch</h3>
+              <span id="selected-base">From c2 on main</span>
+            </div>
+            <label>
+              New branch name
+              <input id="branch-name" type="text" value="feature-login" autocomplete="off" spellcheck="false">
+            </label>
+            <button class="primary-action" type="button" id="create-branch">Create from selected commit</button>
+          </div>
+
+          <div class="action-section">
+            <div class="section-title-row">
+              <h3>Commit</h3>
+              <span id="commit-target">On main</span>
+            </div>
+            <label>
+              Commit message
+              <input id="commit-message" type="text" value="Add login form" autocomplete="off">
+            </label>
+            <button type="button" id="add-commit">Add commit to current branch</button>
+          </div>
+
+          <div class="action-section">
+            <div class="section-title-row">
+              <h3>Merge</h3>
+              <span id="merge-helper">Create a branch first</span>
+            </div>
+            <button type="button" id="merge-to-main">Merge current branch into main</button>
+            <div class="merge-row">
+              <label>
+                Source
+                <select id="merge-source"></select>
+              </label>
+              <label>
+                Into
+                <select id="merge-target"></select>
+              </label>
+              <button type="button" id="merge-selected">Merge</button>
+            </div>
+          </div>
+
+          <div class="utility-row">
+            <button type="button" id="undo-action">Undo</button>
+            <button type="button" id="reset-map">Reset</button>
+          </div>
+        </section>
+
+        <section class="branch-panel command-history-panel">
+          <div class="panel-title-row">
+            <h2>Commands</h2>
+            <button class="copy-button" type="button" id="copy-history">Copy</button>
+          </div>
+          <ol class="command-history" id="command-history" aria-live="polite"></ol>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script src="src/branch-map.js"></script>
+</body>
+</html>

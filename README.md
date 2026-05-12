@@ -16,13 +16,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
 
-Git Map is a single-page Git visualisation for beginners. It shows the main Git areas:
+Git Map is a dependency-free Git visualisation for beginners. The overview page shows the main Git areas:
 
 - 📦 Stash
 - 📝 Local Workspace
 - 🎯 Staging Area
 - 🗂️ Local Repo
 - 🌐 Remote Repo
+
+It also includes `branch-map.html`, an interactive Git Branch Map sandbox where visual branch, commit, switch, and merge actions produce the Git command sequence behind them.
 
 ## 🧭 How To Use
 
@@ -37,6 +39,7 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 - Follow the **Daily path** markers for the common `git pull`, `git add`, `git commit`, and `git push` flow.
 - Click a command ribbon in the diagram to highlight and jump to its detail card.
 - Use the command card **Copy** buttons to copy example commands.
+- Open **Git Branch Map** to click commits on `main`, create feature branches, add commits, merge branches, and review the generated command history.
 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
@@ -47,9 +50,11 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 The project stays no-build and dependency-free, but the page is split by responsibility:
 
 - `index.html`: page shell and static content.
+- `branch-map.html`: interactive branch, commit, and merge sandbox.
 - `src/styles.css`: theme tokens, layout, and responsive styles.
 - `src/data.js`: Git areas, command flows, and helper commands.
 - `src/app.js`: rendering, SVG map drawing, and interactions.
+- `src/branch-map.js`: branch sandbox state, SVG graph drawing, undo/reset, and command history.
 - `scripts/validate.mjs`: data integrity checks.
 
 Run the validator after changing commands or zones:

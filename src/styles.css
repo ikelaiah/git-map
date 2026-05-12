@@ -181,6 +181,34 @@ h1 {
   line-height: 1.55;
 }
 
+.page-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.page-tabs a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--switch-bg);
+  color: var(--muted);
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.page-tabs a:hover,
+.page-tabs a:focus-visible,
+.page-tabs a[aria-current="page"] {
+  border-color: var(--active-bg);
+  background: var(--active-bg);
+  color: var(--active-ink);
+  outline: none;
+}
+
 .segmented-control {
   display: inline-flex;
   align-items: center;
@@ -1097,6 +1125,328 @@ h1 {
   border: 0;
 }
 
+.branch-topbar {
+  align-items: start;
+}
+
+.branch-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 420px);
+  gap: 16px;
+  align-items: start;
+}
+
+.branch-stage,
+.branch-panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
+  box-shadow: 0 14px 34px rgba(20, 27, 45, 0.08);
+}
+
+.branch-stage {
+  overflow: hidden;
+}
+
+.branch-stage-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.branch-stage-header h2,
+.branch-panel h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: 0;
+}
+
+.branch-stage-header p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.branch-current {
+  min-width: 142px;
+  height: max-content;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-soft);
+  padding: 10px 12px;
+}
+
+.branch-current span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.branch-current strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 1rem;
+}
+
+.branch-graph-shell {
+  width: 100%;
+  overflow: auto;
+  background: var(--map-bg);
+}
+
+.branch-graph {
+  display: block;
+  width: max(980px, 100%);
+  min-height: 420px;
+}
+
+.branch-line,
+.merge-line {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0.84;
+}
+
+.branch-line.is-selected {
+  stroke-width: 7;
+  opacity: 1;
+}
+
+.merge-line {
+  stroke-width: 4;
+  stroke-dasharray: 8 8;
+}
+
+.branch-label {
+  cursor: pointer;
+}
+
+.branch-label rect {
+  filter: drop-shadow(0 8px 14px rgba(20, 27, 45, 0.12));
+}
+
+.branch-label text {
+  fill: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.branch-label.is-current rect {
+  stroke: var(--panel);
+  stroke-width: 3;
+}
+
+.commit-node {
+  cursor: pointer;
+  outline: none;
+}
+
+.commit-node circle:first-child {
+  filter: drop-shadow(0 8px 14px rgba(20, 27, 45, 0.14));
+  stroke: var(--panel);
+  stroke-width: 3;
+  transition: stroke-width 160ms ease, transform 160ms ease;
+}
+
+.commit-node:hover circle:first-child,
+.commit-node:focus-visible circle:first-child,
+.commit-node.is-selected circle:first-child {
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.commit-node text {
+  fill: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.commit-node text + text {
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.branch-controls {
+  display: grid;
+  gap: 16px;
+}
+
+.branch-panel {
+  padding: 18px;
+}
+
+.action-section,
+.form-grid,
+.action-grid,
+.merge-row,
+.utility-row {
+  display: grid;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.action-section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-soft);
+  padding: 12px;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-title-row h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  letter-spacing: 0;
+}
+
+.section-title-row span {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.form-grid {
+  grid-template-columns: 1fr;
+}
+
+.merge-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+  align-items: end;
+}
+
+.utility-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 13px;
+}
+
+.branch-panel label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.branch-panel input,
+.branch-panel select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.branch-panel button {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-soft);
+  color: var(--code-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 900;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.branch-panel button:hover:not(:disabled),
+.branch-panel button:focus-visible:not(:disabled) {
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 10%, var(--panel));
+  color: var(--blue);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.branch-panel button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.branch-panel .primary-action {
+  background: var(--solid-bg);
+  color: var(--solid-ink);
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.command-history {
+  display: grid;
+  gap: 10px;
+  max-height: 472px;
+  margin: 13px 0 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+}
+
+.command-history li {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-soft);
+  padding: 12px;
+}
+
+.command-history strong,
+.command-history span {
+  display: block;
+}
+
+.command-history strong {
+  font-size: 0.9rem;
+}
+
+.command-history pre {
+  margin: 8px 0;
+  border-radius: 7px;
+  background: var(--solid-bg);
+  color: var(--solid-ink);
+  overflow: auto;
+  padding: 9px;
+}
+
+.command-history code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  white-space: pre;
+}
+
+.command-history span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
 @media (max-width: 1120px) {
   .topbar,
   .details {
@@ -1110,6 +1460,10 @@ h1 {
 
   .command-panel {
     position: static;
+  }
+
+  .branch-workbench {
+    grid-template-columns: 1fr;
   }
 
   .map-jumps {
@@ -1205,6 +1559,14 @@ h1 {
 
   .map-jumps {
     margin-top: -2px;
+  }
+
+  .branch-stage-header {
+    display: grid;
+  }
+
+  .merge-row {
+    grid-template-columns: 1fr;
   }
 
   .git-map {
