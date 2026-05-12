@@ -24,8 +24,8 @@ const laneGap = 72;
 const startX = 88;
 const commitGap = 130;
 const mainY = 98;
-const defaultBranchName = "feature-login";
-const defaultCommitMessage = "Add login form";
+const defaultBranchName = "feature-a";
+const defaultCommitMessage = "Add first change";
 const colors = ["#2f6fed", "#12836f", "#b56b12", "#7556f6", "#cf3f49", "#0f766e"];
 const initialState = {
   currentBranch: "main",
@@ -203,6 +203,10 @@ function createBranch() {
 }
 
 function suggestNextBranchName(previousName) {
+  const letterMatch = previousName.match(/^(.*-)([a-z])$/);
+  if (letterMatch && letterMatch[2] !== "z") {
+    return `${letterMatch[1]}${String.fromCharCode(letterMatch[2].charCodeAt(0) + 1)}`;
+  }
   const match = previousName.match(/^(.*?)(\d+)$/);
   if (match) {
     return `${match[1]}${Number(match[2]) + 1}`;
