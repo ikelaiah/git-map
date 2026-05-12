@@ -41,6 +41,23 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 
 🚀 Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
 
+## 🧰 Command Coverage
+
+- `git switch <branch>`: move to another branch.
+- `git switch -c <branch>`: create and move to a new branch.
+- `git merge <branch>`: bring another branch into the current branch.
+- `git rebase <branch>`: replay commits on top of another branch.
+- `git cherry-pick <commit>`: copy one commit onto the current branch.
+- `git revert <commit>`: safely undo a commit by creating a new commit.
+- `git reset --hard HEAD`: discard all local tracked changes.
+- `git restore .`: discard unstaged workspace edits by restoring files from the index.
+- `git stash -u`: stash tracked and untracked files.
+- `git stash branch <branch>`: create a branch from a stash.
+- `git log --oneline --graph --decorate --all`: view commit history as a graph.
+- `git blame <file>`: see who last changed each line.
+- `git tag <name>`: mark a release point.
+- `git remote add origin <url>`: record a remote URL in local Git config.
+
 ## 🌍 Publish With GitHub Pages
 
 1. Push this repository to GitHub.

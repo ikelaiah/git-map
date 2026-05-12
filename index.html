@@ -965,9 +965,10 @@
         <div class="legend-grid">
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--blue)"></span><span>Blue flows change files in the local workspace.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--amber)"></span><span>Amber flows prepare or unprepare changes for a commit.</span></div>
-          <div class="legend-item"><span class="legend-dot" style="--dot: var(--green)"></span><span>Green flows create or inspect local commits.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--green)"></span><span>Green flows create, inspect, or reshape local history.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--red)"></span><span>Red flows exchange commits with the shared remote.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--violet)"></span><span>Violet flows temporarily store work without committing it.</span></div>
+          <div class="legend-item"><span class="legend-dot" style="--dot: var(--track)"></span><span>Short loops show commands that act inside one Git area.</span></div>
         </div>
         <div class="learn-section">
           <h3>Beginner Daily Path</h3>
@@ -1005,7 +1006,7 @@
     };
 
     const mainPathCommandIds = new Set(["pull", "add", "commit", "push"]);
-    const workspaceFocusedCommandIds = new Set(["stash-save", "stash-pop", "stash-apply", "add", "restore-staged", "restore", "pull", "commit", "push", "clone"]);
+    const workspaceFocusedCommandIds = new Set(["stash-save", "stash-untracked", "stash-pop", "stash-apply", "stash-branch", "add", "restore-staged", "restore", "restore-all", "reset-hard", "pull", "commit", "push", "clone", "switch", "switch-create"]);
     const flowStartY = 288;
     const lifelineStartY = 270;
     const rowGap = 32;
@@ -1015,6 +1016,7 @@
       {
         id: "stash-save",
         command: "git stash push -m \"message\"",
+        label: "git stash push",
         title: "Shelve unfinished edits",
         from: "workspace",
         to: "stash",
@@ -1048,6 +1050,29 @@
         note: "Applies a stash but keeps it available for reuse."
       },
       {
+        id: "stash-untracked",
+        command: "git stash -u",
+        title: "Stash untracked files too",
+        from: "workspace",
+        to: "stash",
+        color: "var(--violet)",
+        marker: "arrow-violet",
+        zones: ["workspace", "stash"],
+        note: "Stores tracked changes plus untracked files, which plain git stash leaves behind."
+      },
+      {
+        id: "stash-branch",
+        command: "git stash branch <branch>",
+        label: "git stash branch",
+        title: "Branch from a stash",
+        from: "stash",
+        to: "local",
+        color: "var(--violet)",
+        marker: "arrow-violet",
+        zones: ["stash", "workspace", "local"],
+        note: "Creates a new local branch from the stash base, checks it out, and applies the stash."
+      },
+      {
         id: "add",
         command: "git add <file>",
         title: "Stage selected changes",
@@ -1073,14 +1098,27 @@
         id: "restore",
         command: "git restore <file>",
         title: "Discard workspace edits",
-        from: "local",
+        from: "staging",
         to: "workspace",
         color: "var(--blue)",
         marker: "arrow-blue",
-        zones: ["workspace", "local"],
+        zones: ["workspace", "staging", "local"],
         risk: "danger",
         caution: "Discards edits",
-        note: "Replaces a file in your workspace with the last committed version."
+        note: "Restores a workspace file from the index. Staged changes stay staged."
+      },
+      {
+        id: "restore-all",
+        command: "git restore .",
+        title: "Discard all workspace edits",
+        from: "staging",
+        to: "workspace",
+        color: "var(--blue)",
+        marker: "arrow-blue",
+        zones: ["workspace", "staging", "local"],
+        risk: "danger",
+        caution: "Discards edits",
+        note: "Restores all tracked workspace files from the index. Staged changes stay staged."
       },
       {
         id: "commit",
@@ -1096,6 +1134,7 @@
       {
         id: "reset-soft",
         command: "git reset --soft HEAD~1",
+        label: "git reset --soft",
         title: "Undo commit, keep staged",
         from: "local",
         to: "staging",
@@ -1105,6 +1144,124 @@
         risk: "danger",
         caution: "Rewrites last local commit",
         note: "Moves the last commit back to staging so you can adjust and recommit."
+      },
+      {
+        id: "reset-hard",
+        command: "git reset --hard HEAD",
+        label: "git reset --hard",
+        title: "Discard tracked local changes",
+        from: "local",
+        to: "workspace",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace", "staging"],
+        risk: "danger",
+        caution: "Discards edits",
+        note: "Resets tracked files and staging back to HEAD. Uncommitted tracked changes are lost."
+      },
+      {
+        id: "switch",
+        command: "git switch <branch>",
+        title: "Move to another branch",
+        from: "local",
+        to: "workspace",
+        color: "var(--blue)",
+        marker: "arrow-blue",
+        zones: ["local", "workspace"],
+        note: "Use when the branch already exists. Git checks it out and updates your workspace to match it."
+      },
+      {
+        id: "switch-create",
+        command: "git switch -c <branch>",
+        label: "git switch -c",
+        title: "Create and switch branch",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        note: "Use when the branch does not exist yet. Git creates it at the current commit and switches to it."
+      },
+      {
+        id: "merge",
+        command: "git merge <branch>",
+        title: "Merge a branch",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        note: "Brings another branch into the current branch, creating a merge commit when needed."
+      },
+      {
+        id: "rebase",
+        command: "git rebase <branch>",
+        title: "Replay commits on another base",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        risk: "danger",
+        caution: "Rewrites commits",
+        note: "Replays current branch commits on top of another branch. Avoid rebasing shared commits."
+      },
+      {
+        id: "cherry-pick",
+        command: "git cherry-pick <commit>",
+        label: "git cherry-pick",
+        title: "Copy one commit",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        note: "Applies one existing commit onto the current branch as a new commit."
+      },
+      {
+        id: "revert",
+        command: "git revert <commit>",
+        title: "Safely undo a commit",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        note: "Creates a new commit that reverses an earlier commit without rewriting history."
+      },
+      {
+        id: "log-graph",
+        command: "git log --oneline --graph --decorate --all",
+        label: "git log graph",
+        title: "View the full commit graph",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local"],
+        note: "Shows branches, tags, and commits as a compact visual history."
+      },
+      {
+        id: "blame",
+        command: "git blame <file>",
+        title: "Inspect line history",
+        from: "workspace",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local", "workspace"],
+        note: "Uses a workspace file path to look up which local commit last changed each line."
+      },
+      {
+        id: "tag",
+        command: "git tag <name>",
+        title: "Mark a release point",
+        from: "local",
+        to: "local",
+        color: "var(--green)",
+        marker: "arrow-green",
+        zones: ["local"],
+        note: "Adds a named tag to the current commit, commonly used for releases."
       },
       {
         id: "fetch",
@@ -1140,6 +1297,18 @@
         note: "Uploads your local commits to the shared remote branch."
       },
       {
+        id: "remote-add",
+        command: "git remote add origin <url>",
+        label: "git remote add",
+        title: "Connect to a remote",
+        from: "remote",
+        to: "local",
+        color: "var(--red)",
+        marker: "arrow-red",
+        zones: ["local", "remote"],
+        note: "Records a remote repository URL in local config so origin can be used later."
+      },
+      {
         id: "clone",
         command: "git clone <url>",
         title: "Create a local copy",
@@ -1155,11 +1324,16 @@
     const toolCommands = {
       stash: [
         { command: "git stash list", note: "Show saved stashes." },
-        { command: "git stash show -p", note: "Preview what is inside a stash." }
+        { command: "git stash show -p", note: "Preview what is inside a stash." },
+        { command: "git stash -u", note: "Stash tracked and untracked files." },
+        { command: "git stash branch <branch>", note: "Create a branch from a stash." }
       ],
       workspace: [
         { command: "git status", note: "See changed, staged, and untracked files." },
         { command: "git diff", note: "Review workspace edits before staging." },
+        { command: "git switch <branch>", note: "Move to an existing branch." },
+        { command: "git switch -c <branch>", note: "Create a new branch and switch to it." },
+        { command: "git restore .", note: "Discard all tracked workspace edits. Use carefully.", caution: true },
         { command: "git clean -fd", note: "Remove untracked files. Use carefully.", caution: true }
       ],
       staging: [
@@ -1167,11 +1341,18 @@
         { command: "git add -p", note: "Stage selected hunks instead of whole files." }
       ],
       local: [
-        { command: "git log --oneline --graph", note: "Read local commit history as a compact graph." },
+        { command: "git log --oneline --graph --decorate --all", note: "Read branches, tags, and commits as a compact graph." },
         { command: "git branch", note: "List local branches." },
-        { command: "git switch -c <branch>", note: "Create and switch to a new branch." }
+        { command: "git merge <branch>", note: "Bring another branch into the current branch." },
+        { command: "git rebase <branch>", note: "Replay commits on top of another branch. Use carefully.", caution: true },
+        { command: "git cherry-pick <commit>", note: "Copy one commit onto the current branch." },
+        { command: "git revert <commit>", note: "Safely undo a commit with a new commit." },
+        { command: "git blame <file>", note: "See who last changed each line." },
+        { command: "git tag <name>", note: "Mark a release point." },
+        { command: "git reset --hard HEAD", note: "Discard all tracked local changes. Use carefully.", caution: true }
       ],
       remote: [
+        { command: "git remote add origin <url>", note: "Connect a local repository to a remote." },
         { command: "git remote -v", note: "Show remote repository URLs." },
         { command: "git branch -r", note: "List branches known from the remote." }
       ],
@@ -1179,7 +1360,8 @@
         { command: "git status", note: "Start here when you are unsure what Git sees." },
         { command: "git diff", note: "Inspect unstaged changes." },
         { command: "git diff --staged", note: "Inspect staged changes." },
-        { command: "git log --oneline --graph", note: "Read commit history." }
+        { command: "git log --oneline --graph --decorate --all", note: "Read commit history." },
+        { command: "git switch -c <branch>", note: "Create a branch before starting work." }
       ]
     };
 
@@ -1229,6 +1411,9 @@
     function commandLabel(command) {
       return command
         .replace(" <file>", "")
+        .replace(" <branch>", "")
+        .replace(" <commit>", "")
+        .replace(" <name>", "")
         .replace(" <url>", "")
         .replace(" -m \"message\"", "");
     }
@@ -1272,6 +1457,29 @@
       return `${startX},${y - half} ${neckX},${y - half} ${endX},${y} ${neckX},${y + half} ${startX},${y + half}`;
     }
 
+    function loopGeometry(zone, y) {
+      const edgePadding = 46;
+      const minX = edgePadding;
+      const maxX = 1400 - edgePadding;
+      const width = 180;
+      let startX = zone.x - width - 16;
+      let endX = zone.x - 16;
+      if (startX < minX) {
+        startX = zone.x + 16;
+        endX = startX + width;
+      }
+      if (endX > maxX) {
+        endX = maxX;
+        startX = endX - width;
+      }
+      return {
+        startX,
+        endX,
+        labelX: (startX + endX) / 2,
+        labelY: y + 4
+      };
+    }
+
     function isPrimaryCommand(item) {
       return selectedZone === "workspace" && mainPathCommandIds.has(item.id);
     }
@@ -1282,7 +1490,7 @@
 
     function updateMapMetrics(commandCount) {
       const height = displayMode === "all"
-        ? 735
+        ? Math.max(735, flowStartY + Math.max(commandCount, 1) * rowGap + 104)
         : Math.max(470, flowStartY + Math.max(commandCount, 1) * rowGap + 104);
       currentMapHeight = height;
       map.style.setProperty("--map-height", `${height}px`);
@@ -1329,14 +1537,16 @@
         const y = flowStartY + index * rowGap;
         const from = zones[item.from];
         const to = zones[item.to];
+        const isLoop = item.from === item.to;
         const direction = to.x >= from.x ? 1 : -1;
-        const startX = from.x + direction * 14;
-        const endX = to.x - direction * 18;
-        const text = commandLabel(item.command);
+        const loop = isLoop ? loopGeometry(from, y) : null;
+        const startX = loop ? loop.startX : from.x + direction * 14;
+        const endX = loop ? loop.endX : to.x - direction * 18;
+        const text = item.label || commandLabel(item.command);
         const ribbonHeight = 24;
         const arrowHead = 24;
-        const labelX = (from.x + to.x) / 2;
-        const labelY = y + 4;
+        const labelX = loop ? loop.labelX : (from.x + to.x) / 2;
+        const labelY = loop ? loop.labelY : y + 4;
         const group = createSvgElement("g");
         group.classList.add("command-flow");
         group.classList.toggle("is-primary", isPrimaryCommand(item));
@@ -1367,8 +1577,8 @@
         });
         connectorEnd.style.setProperty("--path-length", "10");
         const track = createSvgElement("line", {
-          x1: Math.min(from.x, to.x) + 12,
-          x2: Math.max(from.x, to.x) - 12,
+          x1: isLoop ? startX : Math.min(from.x, to.x) + 12,
+          x2: isLoop ? endX : Math.max(from.x, to.x) - 12,
           y1: y,
           y2: y,
           stroke: "var(--track)",
@@ -1406,7 +1616,11 @@
           }
         });
 
-        group.append(track, connectorStart, connectorEnd, ribbon, label);
+        group.append(track, connectorStart);
+        if (!isLoop) {
+          group.append(connectorEnd);
+        }
+        group.append(ribbon, label);
         svg.append(group);
       });
     }
