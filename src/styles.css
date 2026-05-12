@@ -683,7 +683,7 @@ h1 {
 
 .legend-item {
   display: grid;
-  grid-template-columns: 16px 1fr;
+  grid-template-columns: minmax(16px, max-content) minmax(0, 1fr);
   gap: 10px;
   align-items: start;
   color: var(--muted);
