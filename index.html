@@ -139,6 +139,7 @@
       justify-content: space-between;
       gap: 22px;
       margin-bottom: 22px;
+      min-width: 0;
     }
 
     .control-stack {
@@ -146,11 +147,13 @@
       gap: 10px;
       justify-items: end;
       flex: 0 0 auto;
+      min-width: 0;
     }
 
     .control-group {
       display: grid;
       gap: 6px;
+      min-width: 0;
     }
 
     .control-label {
@@ -186,6 +189,7 @@
       border-radius: 999px;
       background: var(--switch-bg);
       box-shadow: 0 10px 26px rgba(20, 27, 45, 0.08);
+      max-width: 100%;
     }
 
     .segmented-control button {
@@ -197,6 +201,7 @@
       font: inherit;
       font-weight: 700;
       cursor: pointer;
+      min-width: 0;
     }
 
     .segmented-control button[aria-pressed="true"] {
@@ -217,6 +222,15 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       transition: min-height 220ms ease, padding-bottom 220ms ease;
+    }
+
+    .map-shell {
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    .map-jumps {
+      display: none;
     }
 
     .flow-layer {
@@ -813,28 +827,59 @@
         position: static;
       }
 
+      .map-jumps {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 10px;
+        overflow-x: auto;
+        padding: 2px 0 8px;
+        scrollbar-width: thin;
+      }
+
+      .map-jump {
+        min-width: 46px;
+        height: 38px;
+        border: 1px solid color-mix(in srgb, var(--jump-color) 42%, var(--line));
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--jump-color) 9%, var(--panel));
+        color: var(--jump-color);
+        cursor: pointer;
+        flex: 0 0 auto;
+        font: inherit;
+        font-weight: 900;
+        transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+      }
+
+      .map-jump:hover,
+      .map-jump:focus-visible,
+      .map-jump[aria-pressed="true"] {
+        border-color: var(--jump-color);
+        background: var(--jump-color);
+        color: var(--active-ink);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .map-shell {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 0 12px;
+        scrollbar-color: var(--line-strong) transparent;
+        scrollbar-width: thin;
+      }
+
       .git-map {
-        grid-template-columns: repeat(2, minmax(210px, 1fr));
-        min-height: auto;
-        padding-bottom: 28px;
-      }
-
-      .flow-layer {
-        display: none;
-      }
-
-      .lifeline-labels {
-        display: none;
+        width: max(1040px, 100%);
+        grid-template-columns: repeat(5, minmax(170px, 1fr));
       }
     }
 
     @media (max-width: 720px) {
       main {
-        width: min(100vw - 24px, 560px);
+        width: min(calc(100vw - 24px), 560px);
         padding-top: 20px;
       }
 
-      .git-map,
       .command-list,
       .tool-list {
         grid-template-columns: 1fr;
@@ -842,7 +887,9 @@
 
       .segmented-control {
         width: 100%;
-        justify-content: stretch;
+        display: grid;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
       }
 
       .control-stack,
@@ -855,11 +902,18 @@
       }
 
       .segmented-control button {
-        flex: 1;
+        overflow: hidden;
+        padding-inline: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
-      .zone {
-        min-height: 190px;
+      .map-jumps {
+        margin-top: -2px;
+      }
+
+      .git-map {
+        width: 1040px;
       }
     }
 
@@ -902,62 +956,74 @@
       </div>
     </section>
 
-    <section class="git-map" aria-label="Git areas">
-      <svg class="flow-layer" viewBox="0 0 1400 735" preserveAspectRatio="none" aria-hidden="true">
-      </svg>
-      <div class="lifeline-labels" aria-hidden="true">
-        <span>Stash</span>
-        <span>Local Workspace</span>
-        <span>Staging Area</span>
-        <span>Local Repo</span>
-        <span>Remote Repo</span>
+    <div class="map-frame">
+      <nav class="map-jumps" aria-label="Git area shortcuts">
+        <button class="map-jump" type="button" data-jump-zone="stash" aria-label="Show Stash" style="--jump-color: var(--violet)">S</button>
+        <button class="map-jump" type="button" data-jump-zone="workspace" aria-label="Show Local Workspace" style="--jump-color: var(--blue)">W</button>
+        <button class="map-jump" type="button" data-jump-zone="staging" aria-label="Show Staging Area" style="--jump-color: var(--amber)">A</button>
+        <button class="map-jump" type="button" data-jump-zone="local" aria-label="Show Local Repo" style="--jump-color: var(--green)">L</button>
+        <button class="map-jump" type="button" data-jump-zone="remote" aria-label="Show Remote Repo" style="--jump-color: var(--red)">R</button>
+      </nav>
+
+      <div class="map-shell">
+        <section class="git-map" aria-label="Git areas">
+          <svg class="flow-layer" viewBox="0 0 1400 735" preserveAspectRatio="none" aria-hidden="true">
+          </svg>
+          <div class="lifeline-labels" aria-hidden="true">
+            <span>Stash</span>
+            <span>Local Workspace</span>
+            <span>Staging Area</span>
+            <span>Local Repo</span>
+            <span>Remote Repo</span>
+          </div>
+
+          <article class="zone" tabindex="0" data-zone="stash" style="--zone-color: var(--violet)">
+            <div class="zone-icon">S</div>
+            <div>
+              <h2>Stash</h2>
+              <p>Temporary shelf for unfinished work you want to hide and restore later.</p>
+            </div>
+            <code>git stash</code>
+          </article>
+
+          <article class="zone" tabindex="0" data-zone="workspace" style="--zone-color: var(--blue)">
+            <div class="zone-icon">W</div>
+            <div>
+              <h2>Local Workspace</h2>
+              <p>Your checked-out files. This is where edits, new files, conflicts, and deletions appear first.</p>
+            </div>
+            <code>git status</code>
+          </article>
+
+          <article class="zone" tabindex="0" data-zone="staging" style="--zone-color: var(--amber)">
+            <div class="zone-icon">A</div>
+            <div>
+              <h2>Staging Area</h2>
+              <p>The prepared snapshot for your next commit. Add only what belongs together.</p>
+            </div>
+            <code>git diff --staged</code>
+          </article>
+
+          <article class="zone" tabindex="0" data-zone="local" style="--zone-color: var(--green)">
+            <div class="zone-icon">L</div>
+            <div>
+              <h2>Local Repo</h2>
+              <p>Your local commit history. Commits are saved here before they are shared.</p>
+            </div>
+            <code>git log --oneline</code>
+          </article>
+
+          <article class="zone" tabindex="0" data-zone="remote" style="--zone-color: var(--red)">
+            <div class="zone-icon">R</div>
+            <div>
+              <h2>Remote Repo</h2>
+              <p>The shared copy on GitHub, GitLab, Bitbucket, or another Git server.</p>
+            </div>
+            <code>git remote -v</code>
+          </article>
+        </section>
       </div>
-
-      <article class="zone" tabindex="0" data-zone="stash" style="--zone-color: var(--violet)">
-        <div class="zone-icon">S</div>
-        <div>
-          <h2>Stash</h2>
-          <p>Temporary shelf for unfinished work you want to hide and restore later.</p>
-        </div>
-        <code>git stash</code>
-      </article>
-
-      <article class="zone" tabindex="0" data-zone="workspace" style="--zone-color: var(--blue)">
-        <div class="zone-icon">W</div>
-        <div>
-          <h2>Local Workspace</h2>
-          <p>Your checked-out files. This is where edits, new files, conflicts, and deletions appear first.</p>
-        </div>
-        <code>git status</code>
-      </article>
-
-      <article class="zone" tabindex="0" data-zone="staging" style="--zone-color: var(--amber)">
-        <div class="zone-icon">A</div>
-        <div>
-          <h2>Staging Area</h2>
-          <p>The prepared snapshot for your next commit. Add only what belongs together.</p>
-        </div>
-        <code>git diff --staged</code>
-      </article>
-
-      <article class="zone" tabindex="0" data-zone="local" style="--zone-color: var(--green)">
-        <div class="zone-icon">L</div>
-        <div>
-          <h2>Local Repo</h2>
-          <p>Your local commit history. Commits are saved here before they are shared.</p>
-        </div>
-        <code>git log --oneline</code>
-      </article>
-
-      <article class="zone" tabindex="0" data-zone="remote" style="--zone-color: var(--red)">
-        <div class="zone-icon">R</div>
-        <div>
-          <h2>Remote Repo</h2>
-          <p>The shared copy on GitHub, GitLab, Bitbucket, or another Git server.</p>
-        </div>
-        <code>git remote -v</code>
-      </article>
-    </section>
+    </div>
 
     <section class="details" aria-live="polite">
       <aside class="legend">
@@ -1366,8 +1432,10 @@
     };
 
     const map = document.querySelector(".git-map");
+    const mapShell = document.querySelector(".map-shell");
     const svg = document.querySelector(".flow-layer");
     const zoneEls = [...document.querySelectorAll(".zone")];
+    const mapJumpButtons = [...document.querySelectorAll("[data-jump-zone]")];
     const commandList = document.querySelector("#command-list");
     const commandTitle = document.querySelector("#command-title");
     const commandHelp = document.querySelector("#command-help");
@@ -1502,6 +1570,25 @@
           line.setAttribute("y1", lifelineStartY);
           line.setAttribute("y2", height - 78);
         }
+      });
+    }
+
+    function centerZoneInMap(zoneKey) {
+      const zone = map.querySelector(`[data-zone="${zoneKey}"]`);
+      if (!zone || !mapShell || mapShell.scrollWidth <= mapShell.clientWidth) {
+        return;
+      }
+
+      const targetLeft = zone.offsetLeft + zone.offsetWidth / 2 - mapShell.clientWidth / 2;
+      mapShell.scrollTo({
+        left: Math.max(0, targetLeft),
+        behavior: "smooth"
+      });
+    }
+
+    function updateMapJumps() {
+      mapJumpButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.jumpZone === selectedZone));
       });
     }
 
@@ -1787,6 +1874,7 @@
         el.classList.toggle("is-related", relatedZones.has(el.dataset.zone));
         el.classList.toggle("is-main-path", mainPathZones.has(el.dataset.zone));
       });
+      updateMapJumps();
       renderCommands();
       setActiveCommand(null);
     }
@@ -1850,13 +1938,24 @@
       });
     });
 
+    mapJumpButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const zone = button.dataset.jumpZone;
+        centerZoneInMap(zone);
+        if (selectedZone !== zone || pinnedZone !== zone) {
+          selectZone(zone, { pin: true });
+        }
+      });
+    });
+
     themeButtons.forEach((button) => {
       button.addEventListener("click", () => setTheme(button.dataset.themeChoice));
     });
 
     setTheme(initialTheme());
     drawLifelines();
-    updateFlows();
+    selectZone("workspace");
+    window.requestAnimationFrame(() => centerZoneInMap("workspace"));
   </script>
 </body>
 </html>
