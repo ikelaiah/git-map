@@ -3,8 +3,8 @@
 [🌐 Live Demo](https://ikelaiah.github.io/git-map/)
 
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
-[![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](index.html)
-[![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](index.html)
+[![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
+[![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
 [![No Framework](https://img.shields.io/badge/Framework-none-64748b?style=for-the-badge)](index.html)
 [![No Dependencies](https://img.shields.io/badge/Dependencies-none-22c55e?style=for-the-badge)](index.html)
 [![Theme](https://img.shields.io/badge/Theme-light%20%7C%20dark%20%7C%20system-9b7cff?style=for-the-badge)](index.html)
@@ -40,6 +40,22 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
 🚀 Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
+
+## 🛠️ Maintenance
+
+The project stays no-build and dependency-free, but the page is split by responsibility:
+
+- `index.html`: page shell and static content.
+- `src/styles.css`: theme tokens, layout, and responsive styles.
+- `src/data.js`: Git areas, command flows, and helper commands.
+- `src/app.js`: rendering, SVG map drawing, and interactions.
+- `scripts/validate.mjs`: data integrity checks.
+
+Run the validator after changing commands or zones:
+
+```bash
+node scripts/validate.mjs
+```
 
 ## 🧰 Command Coverage
 
