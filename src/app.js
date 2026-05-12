@@ -151,12 +151,8 @@ function loopGeometry(zone, y) {
   };
 }
 
-function isPrimaryCommand(item) {
-  return selectedZone === "workspace" && mainPathCommandIds.has(item.id);
-}
-
-function isSecondaryCommand(item) {
-  return selectedZone === "workspace" && !mainPathCommandIds.has(item.id);
+function isDailyPathCommand(item) {
+  return mainPathCommandIds.has(item.id);
 }
 
 function updateMapMetrics(commandCount) {
@@ -239,8 +235,7 @@ function drawFlows(items) {
     const labelY = loop ? loop.labelY : y + 4;
     const group = createSvgElement("g");
     group.classList.add("command-flow");
-    group.classList.toggle("is-primary", isPrimaryCommand(item));
-    group.classList.toggle("is-secondary", isSecondaryCommand(item));
+    group.classList.toggle("is-daily-path", isDailyPathCommand(item));
     group.dataset.commandId = item.id;
     group.setAttribute("tabindex", "0");
     group.setAttribute("role", "button");
@@ -293,6 +288,20 @@ function drawFlows(items) {
     label.classList.add("flow-label");
     label.classList.toggle("is-danger", item.risk === "danger");
     label.textContent = text;
+    const markerX = startX + direction * 28;
+    const dailyMarker = createSvgElement("circle", {
+      cx: markerX,
+      cy: y,
+      r: 8
+    });
+    const dailyMarkerText = createSvgElement("text", {
+      x: markerX,
+      y: y + 3,
+      "text-anchor": "middle"
+    });
+    dailyMarker.classList.add("flow-daily-marker");
+    dailyMarkerText.classList.add("flow-daily-marker-text");
+    dailyMarkerText.textContent = "D";
 
     group.addEventListener("mouseenter", () => setActiveCommand(item.id));
     group.addEventListener("mouseleave", () => setActiveCommand(null));
@@ -311,6 +320,9 @@ function drawFlows(items) {
       group.append(connectorEnd);
     }
     group.append(ribbon, label);
+    if (isDailyPathCommand(item)) {
+      group.append(dailyMarker, dailyMarkerText);
+    }
     svg.append(group);
   });
 }
@@ -359,7 +371,7 @@ function renderCommands() {
   items.forEach((item) => {
     const li = document.createElement("li");
     li.className = "command-card";
-    li.classList.toggle("is-secondary", isSecondaryCommand(item));
+    li.classList.toggle("is-daily-path", isDailyPathCommand(item));
     li.classList.toggle("is-danger", item.risk === "danger");
     li.tabIndex = 0;
     li.dataset.commandId = item.id;
@@ -367,6 +379,7 @@ function renderCommands() {
     li.innerHTML = `
       <div class="command-card-header">
         <strong>${escapeHtml(item.title)}</strong>
+        ${isDailyPathCommand(item) ? '<span class="badge badge-daily">Daily path</span>' : ""}
         ${item.caution ? `<span class="badge">${escapeHtml(item.caution)}</span>` : ""}
       </div>
       <div class="command-row">
@@ -449,20 +462,15 @@ function updateFlows() {
   const items = new Set(visible.map((item) => item.id));
   document.querySelectorAll("[data-command-id]").forEach((group) => {
     const show = items.has(group.dataset.commandId);
-    const command = commands.find((item) => item.id === group.dataset.commandId);
-    const muted = command && isSecondaryCommand(command);
-    group.querySelectorAll(".flow-track, .flow-line, .flow-ribbon, .flow-label").forEach((el) => {
+    group.querySelectorAll(".flow-track, .flow-line, .flow-ribbon, .flow-label, .flow-daily-marker, .flow-daily-marker-text").forEach((el) => {
       el.classList.toggle("is-visible", show);
-      el.classList.toggle("is-muted", Boolean(muted));
     });
   });
   const relatedZones = new Set();
   const mainPathZones = new Set();
   visible.forEach((item) => {
-    if (selectedZone !== "workspace" || isPrimaryCommand(item)) {
-      [item.from, item.to].forEach((zone) => relatedZones.add(zone));
-    }
-    if (isPrimaryCommand(item)) {
+    [item.from, item.to].forEach((zone) => relatedZones.add(zone));
+    if (isDailyPathCommand(item)) {
       [item.from, item.to].forEach((zone) => mainPathZones.add(zone));
     }
   });

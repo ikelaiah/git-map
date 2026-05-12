@@ -306,10 +306,6 @@ h1 {
   filter: saturate(1.15) brightness(1.02);
 }
 
-.flow-ribbon.is-muted {
-  opacity: 0.25;
-}
-
 .flow-line {
   opacity: 0;
   transition: opacity 160ms ease;
@@ -320,15 +316,11 @@ h1 {
   animation: ribbon-in 380ms ease both;
 }
 
-.flow-line.is-muted {
-  opacity: 0.22;
-}
-
-.command-flow.is-primary .flow-ribbon.is-visible {
+.command-flow.is-daily-path .flow-ribbon.is-visible {
   opacity: 1;
 }
 
-.command-flow.is-primary .flow-track.is-visible {
+.command-flow.is-daily-path .flow-track.is-visible {
   opacity: 1;
 }
 
@@ -343,11 +335,6 @@ h1 {
 .git-map.is-everything .command-flow.is-active .flow-ribbon,
 .git-map.is-everything .command-flow:hover .flow-ribbon {
   opacity: 1;
-}
-
-.flow-label.is-muted,
-.flow-track.is-muted {
-  opacity: 0.28;
 }
 
 .flow-ribbon.is-danger {
@@ -373,12 +360,33 @@ h1 {
   opacity: 1;
 }
 
-.flow-label.is-visible.is-muted {
-  opacity: 0.28;
-}
-
 .flow-label.is-danger {
   fill: var(--ribbon-ink);
+}
+
+.flow-daily-marker,
+.flow-daily-marker-text {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.flow-daily-marker {
+  fill: var(--panel);
+  stroke: var(--ink);
+  stroke-width: 1.5px;
+}
+
+.flow-daily-marker-text {
+  fill: var(--ink);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.flow-daily-marker.is-visible,
+.flow-daily-marker-text.is-visible {
+  opacity: 0.9;
 }
 
 @keyframes ribbon-in {
@@ -410,13 +418,13 @@ h1 {
 }
 
 .git-map.has-selection .zone:not(.is-selected):not(.is-related) {
-  opacity: 0.32;
-  filter: grayscale(0.5);
+  opacity: 0.82;
+  filter: grayscale(0.12);
   transform: scale(0.985);
 }
 
 .git-map.has-selection .zone.is-related:not(.is-selected) {
-  opacity: 0.74;
+  opacity: 0.96;
 }
 
 .git-map.has-selection .zone.is-main-path:not(.is-selected) {
@@ -570,19 +578,9 @@ h1 {
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
-.command-card.is-secondary {
-  opacity: 0.66;
-}
-
 .command-card.is-danger {
   border-color: var(--warning-line);
   background: var(--warning-soft);
-}
-
-.command-card.is-secondary:hover,
-.command-card.is-secondary:focus-visible,
-.command-card.is-secondary.is-active {
-  opacity: 1;
 }
 
 .command-card-header {
@@ -617,6 +615,12 @@ h1 {
   font-size: 0.72rem;
   font-weight: 900;
   white-space: nowrap;
+}
+
+.badge-daily {
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+  background: color-mix(in srgb, var(--blue) 9%, var(--panel));
+  color: var(--blue);
 }
 
 .command-row {
@@ -693,6 +697,34 @@ h1 {
   margin-top: 5px;
   border-radius: 50%;
   background: var(--dot);
+}
+
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--blue) 9%, var(--panel));
+  color: var(--blue);
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1;
+  padding: 5px 7px;
+  white-space: nowrap;
+}
+
+.legend-pill b {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.64rem;
+  line-height: 1;
 }
 
 .learn-section {

@@ -34,6 +34,7 @@ Git Map is a single-page Git visualisation for beginners. It shows the main Git 
 - Press `Enter` or `Space` on a focused top card to pin it with the keyboard.
 - Use **Everything** mode to see the full command map. This clears the pinned area.
 - Use **Light**, **Dark**, or **System** appearance mode to match your preferred theme.
+- Follow the **Daily path** markers for the common `git pull`, `git add`, `git commit`, and `git push` flow.
 - Click a command ribbon in the diagram to highlight and jump to its detail card.
 - Use the command card **Copy** buttons to copy example commands.
 
