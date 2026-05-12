@@ -3,6 +3,8 @@ const zones = {
   stash: {
     label: "Stash",
     icon: "S",
+    place: "Shelf",
+    placeType: "shelf",
     x: 140,
     color: "var(--violet)",
     description: "Temporary shelf for unfinished work you want to hide and restore later.",
@@ -14,6 +16,8 @@ const zones = {
   workspace: {
     label: "Local Workspace",
     icon: "W",
+    place: "Desk",
+    placeType: "desk",
     x: 420,
     color: "var(--blue)",
     description: "Your checked-out files. This is where edits, new files, conflicts, and deletions appear first.",
@@ -25,6 +29,8 @@ const zones = {
   staging: {
     label: "Staging Area",
     icon: "A",
+    place: "Packing table",
+    placeType: "packing",
     x: 700,
     color: "var(--amber)",
     description: "The prepared snapshot for your next commit. Add only what belongs together.",
@@ -36,6 +42,8 @@ const zones = {
   local: {
     label: "Local Repo",
     icon: "L",
+    place: "Archive",
+    placeType: "archive",
     x: 980,
     color: "var(--green)",
     description: "Your local commit history. Commits are saved here before they are shared.",
@@ -47,6 +55,8 @@ const zones = {
   remote: {
     label: "Remote Repo",
     icon: "R",
+    place: "Mailbox",
+    placeType: "mailbox",
     x: 1260,
     color: "var(--red)",
     description: "The shared copy on GitHub, GitLab, Bitbucket, or another Git server.",

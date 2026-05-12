@@ -22,6 +22,7 @@ const mapJumpButtons = [...document.querySelectorAll("[data-jump-zone]")];
 const commandList = document.querySelector("#command-list");
 const commandTitle = document.querySelector("#command-title");
 const commandHelp = document.querySelector("#command-help");
+const commandSpotlight = document.querySelector("#command-spotlight");
 const modeNote = document.querySelector("#mode-note");
 const areaSummary = document.querySelector("#area-summary");
 const toolSection = document.querySelector("#tool-section");
@@ -89,7 +90,13 @@ function renderMapAreas() {
     .join("");
   map.insertAdjacentHTML("beforeend", zoneEntries.map(([key, zone]) => `
     <article class="zone" tabindex="0" data-zone="${escapeHtml(key)}" style="--zone-color: ${escapeHtml(zone.color)}">
-      <div class="zone-icon">${escapeHtml(zone.icon)}</div>
+      <div class="zone-topline">
+        <div class="zone-icon">${escapeHtml(zone.icon)}</div>
+        <div class="zone-scene place-${escapeHtml(zone.placeType || key)}" aria-hidden="true">
+          <span class="place-shape"></span>
+          <span>${escapeHtml(zone.place || zone.label)}</span>
+        </div>
+      </div>
       <div>
         <h2>${escapeHtml(zone.label)}</h2>
         <p>${escapeHtml(zone.description)}</p>
@@ -153,6 +160,90 @@ function loopGeometry(zone, y) {
 
 function isDailyPathCommand(item) {
   return mainPathCommandIds.has(item.id);
+}
+
+function commandUseText(item) {
+  if (isDailyPathCommand(item)) {
+    return "Use it in the daily edit, stage, commit, and share routine.";
+  }
+  if (item.risk === "danger") {
+    return "Use it only after checking status and confirming the changes are safe to rewrite or discard.";
+  }
+  if (item.from === item.to) {
+    return `Use it when you are working inside ${zones[item.from].label}.`;
+  }
+  return `Use it when work needs to move from ${zones[item.from].label} to ${zones[item.to].label}.`;
+}
+
+function commandWatchText(item) {
+  if (item.caution) {
+    return item.caution;
+  }
+  if (isDailyPathCommand(item)) {
+    return "This belongs to the beginner daily path.";
+  }
+  return "Run git status first if you are unsure what Git will change.";
+}
+
+function routePlaceText(item) {
+  const from = zones[item.from];
+  const to = zones[item.to];
+  if (item.from === item.to) {
+    return `${from.place || from.label} loop`;
+  }
+  return `${from.place || from.label} -> ${to.place || to.label}`;
+}
+
+function renderSpotlight(items, commandId) {
+  if (!items.length) {
+    commandSpotlight.hidden = true;
+    commandSpotlight.innerHTML = "";
+    return;
+  }
+
+  const spotlightId = commandId || pinnedCommandId;
+  const item = items.find((candidate) => candidate.id === spotlightId)
+    || items.find((candidate) => isDailyPathCommand(candidate))
+    || items[0];
+  const from = zones[item.from];
+  const to = zones[item.to];
+  const samePlace = item.from === item.to;
+  commandSpotlight.hidden = false;
+  commandSpotlight.style.setProperty("--spot-color", item.color);
+  commandSpotlight.innerHTML = `
+    <div class="spotlight-top">
+      <div>
+        <span class="spotlight-kicker">${isDailyPathCommand(item) ? "Daily route" : "Command route"}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+      </div>
+      <div class="spotlight-route" aria-label="Command route">
+        <span>${escapeHtml(from.label)}</span>
+        <b>${samePlace ? "loop" : "->"}</b>
+        ${samePlace ? "" : `<span>${escapeHtml(to.label)}</span>`}
+      </div>
+    </div>
+    <div class="spotlight-command-row">
+      <code>${escapeHtml(item.command)}</code>
+      <button class="copy-button spotlight-copy" type="button" data-spotlight-copy aria-label="Copy ${escapeHtml(item.command)}">Copy</button>
+    </div>
+    <dl class="spotlight-facts">
+      <div>
+        <dt>Moves through</dt>
+        <dd>${escapeHtml(routePlaceText(item))}</dd>
+      </div>
+      <div>
+        <dt>Use when</dt>
+        <dd>${escapeHtml(commandUseText(item))}</dd>
+      </div>
+      <div>
+        <dt>Watch for</dt>
+        <dd>${escapeHtml(commandWatchText(item))}</dd>
+      </div>
+    </dl>
+  `;
+  commandSpotlight.querySelector("[data-spotlight-copy]").addEventListener("click", (event) => {
+    copyCommand(item.command, event.currentTarget);
+  });
 }
 
 function updateMapMetrics(commandCount) {
@@ -261,20 +352,10 @@ function drawFlows(items) {
       "stroke-linecap": "round"
     });
     connectorEnd.style.setProperty("--path-length", "10");
-    const track = createSvgElement("line", {
-      x1: isLoop ? startX : Math.min(from.x, to.x) + 12,
-      x2: isLoop ? endX : Math.max(from.x, to.x) - 12,
-      y1: y,
-      y2: y,
-      stroke: "var(--track)",
-      "stroke-width": 28,
-      "stroke-linecap": "round"
-    });
     const ribbon = createSvgElement("polygon", {
       points: ribbonPoints(startX, endX, y, ribbonHeight, arrowHead),
       fill: item.color
     });
-    track.classList.add("flow-track");
     connectorStart.classList.add("flow-line");
     connectorEnd.classList.add("flow-line");
     ribbon.classList.add("flow-ribbon");
@@ -315,7 +396,7 @@ function drawFlows(items) {
       }
     });
 
-    group.append(track, connectorStart);
+    group.append(connectorStart);
     if (!isLoop) {
       group.append(connectorEnd);
     }
@@ -342,14 +423,20 @@ function visibleCommands() {
 
 function setActiveCommand(commandId) {
   const activeCommandId = commandId || pinnedCommandId;
-  document.querySelectorAll(".command-flow, .flow-track, .flow-line, .flow-ribbon, .flow-label, .command-card").forEach((el) => {
-    el.classList.toggle("is-active", el.dataset.commandId === activeCommandId || el.closest(`[data-command-id="${activeCommandId}"]`));
+  const command = activeCommandId ? commands.find((item) => item.id === activeCommandId) : null;
+  document.querySelectorAll(".command-flow, .flow-line, .flow-ribbon, .flow-label, .command-card").forEach((el) => {
+    const isActive = Boolean(activeCommandId)
+      && (el.dataset.commandId === activeCommandId || el.closest(`[data-command-id="${activeCommandId}"]`));
+    el.classList.toggle("is-active", isActive);
   });
   document.querySelectorAll("[data-lifeline]").forEach((group) => {
-    const command = commands.find((item) => item.id === activeCommandId);
     const active = command && [command.from, command.to].includes(group.dataset.lifeline);
     group.querySelectorAll(".lifeline").forEach((el) => el.classList.toggle("is-active", active));
   });
+  zoneEls.forEach((el) => {
+    el.classList.toggle("is-command-active", Boolean(command) && [command.from, command.to].includes(el.dataset.zone));
+  });
+  renderSpotlight(visibleCommands(), activeCommandId);
 }
 
 function selectCommand(commandId) {
@@ -367,6 +454,7 @@ function renderCommands() {
   commandHelp.hidden = items.length > 0;
   commandTitle.textContent = displayMode === "all" ? "Everything Git flows" : selectedZone ? `${zones[selectedZone].label} commands` : "Hover an area";
   renderSummary();
+  renderSpotlight(items);
 
   items.forEach((item) => {
     const li = document.createElement("li");
@@ -452,17 +540,18 @@ function renderTools() {
 
 function updateFlows() {
   const visible = visibleCommands();
+  const visibleMap = visible.filter((item) => item.from !== item.to);
   if (pinnedCommandId && !visible.some((item) => item.id === pinnedCommandId)) {
     pinnedCommandId = null;
   }
-  updateMapMetrics(visible.length);
+  updateMapMetrics(visibleMap.length);
   map.classList.toggle("is-everything", displayMode === "all");
   map.classList.toggle("has-selection", displayMode !== "all" && Boolean(selectedZone));
-  drawFlows(visible);
-  const items = new Set(visible.map((item) => item.id));
+  drawFlows(visibleMap);
+  const items = new Set(visibleMap.map((item) => item.id));
   document.querySelectorAll("[data-command-id]").forEach((group) => {
     const show = items.has(group.dataset.commandId);
-    group.querySelectorAll(".flow-track, .flow-line, .flow-ribbon, .flow-label, .flow-daily-marker, .flow-daily-marker-text").forEach((el) => {
+    group.querySelectorAll(".flow-line, .flow-ribbon, .flow-label, .flow-daily-marker, .flow-daily-marker-text").forEach((el) => {
       el.classList.toggle("is-visible", show);
     });
   });

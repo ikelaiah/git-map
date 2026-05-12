@@ -53,7 +53,6 @@
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--green)"></span><span>Green flows create, inspect, or reshape local history.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--red)"></span><span>Red flows exchange commits with the shared remote.</span></div>
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--violet)"></span><span>Violet flows temporarily store work without committing it.</span></div>
-          <div class="legend-item"><span class="legend-dot" style="--dot: var(--track)"></span><span>Short loops show commands that act inside one Git area.</span></div>
           <div class="legend-item"><span class="legend-pill"><b>D</b> Daily</span><span>The daily marker highlights the common pull, add, commit, and push flow.</span></div>
         </div>
         <div class="learn-section">
@@ -73,6 +72,7 @@
         <p class="mode-note" id="mode-note" hidden></p>
         <p class="area-summary" id="area-summary" hidden></p>
         <p class="empty-state" id="command-help"><strong>Start here:</strong> choose <strong>Local Workspace</strong> if you have edited files, or <strong>Remote Repo</strong> if you are cloning, pulling, or pushing. Focused mode keeps the map simple.</p>
+        <div class="command-spotlight" id="command-spotlight" hidden></div>
         <ul class="command-list" id="command-list"></ul>
         <div class="learn-section" id="tool-section" hidden>
           <h3 id="tool-title">Useful checks</h3>
