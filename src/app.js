@@ -3,7 +3,8 @@ const {
   mainPathCommandIds,
   workspaceFocusedCommandIds,
   commands,
-  toolCommands
+  toolCommands,
+  statusScenarios
 } = window.gitMapData;
 
 const flowStartY = 288;
@@ -29,12 +30,16 @@ const toolSection = document.querySelector("#tool-section");
 const toolTitle = document.querySelector("#tool-title");
 const toolList = document.querySelector("#tool-list");
 const modeButtons = [...document.querySelectorAll("[data-mode]")];
+const riskButtons = [...document.querySelectorAll("[data-risk-filter]")];
 const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
+const statusHelperChoice = document.querySelector("#status-helper-choice");
+const statusHelperResult = document.querySelector("#status-helper-result");
 const themeStorageKey = "git-map-theme";
 const legacyThemeStorageKey = "git-helper-theme";
 let selectedZone = null;
 let pinnedZone = null;
 let displayMode = "focused";
+let riskFilter = "safe";
 let pinnedCommandId = null;
 
 function setTheme(theme) {
@@ -160,6 +165,27 @@ function loopGeometry(zone, y) {
 
 function isDailyPathCommand(item) {
   return mainPathCommandIds.has(item.id);
+}
+
+function isRiskyCommand(item) {
+  return item.risk === "danger";
+}
+
+function applyRiskFilter(items) {
+  if (riskFilter === "all") {
+    return items;
+  }
+  return items.filter((item) => !isRiskyCommand(item));
+}
+
+function isRiskyCommandText(command) {
+  const mapCommand = commands.find((item) => item.command === command);
+  if (mapCommand) {
+    return isRiskyCommand(mapCommand);
+  }
+  return Object.values(toolCommands)
+    .flat()
+    .some((tool) => tool.command === command && tool.caution);
 }
 
 function commandUseText(item) {
@@ -409,16 +435,17 @@ function drawFlows(items) {
 }
 
 function visibleCommands() {
+  let items;
   if (displayMode === "all") {
-    return commands;
-  }
-  if (!selectedZone) {
+    items = commands;
+  } else if (!selectedZone) {
     return [];
+  } else if (selectedZone === "workspace") {
+    items = commands.filter((item) => workspaceFocusedCommandIds.has(item.id));
+  } else {
+    items = commands.filter((item) => item.zones.includes(selectedZone));
   }
-  if (selectedZone === "workspace") {
-    return commands.filter((item) => workspaceFocusedCommandIds.has(item.id));
-  }
-  return commands.filter((item) => item.zones.includes(selectedZone));
+  return applyRiskFilter(items);
 }
 
 function setActiveCommand(commandId) {
@@ -518,7 +545,9 @@ function renderSummary() {
 
 function renderTools() {
   const key = displayMode === "all" ? "all" : selectedZone;
-  const tools = key ? toolCommands[key] || [] : [];
+  const tools = key
+    ? (toolCommands[key] || []).filter((tool) => riskFilter === "all" || !tool.caution)
+    : [];
   toolSection.hidden = tools.length === 0;
   toolList.innerHTML = "";
   if (!tools.length) {
@@ -536,6 +565,59 @@ function renderTools() {
     `;
     toolList.append(li);
   });
+}
+
+function renderStatusHelperOptions() {
+  if (!statusHelperChoice || !statusHelperResult) {
+    return;
+  }
+  statusHelperChoice.innerHTML = statusScenarios.map((scenario) => `
+    <option value="${escapeHtml(scenario.id)}">${escapeHtml(scenario.label)}</option>
+  `).join("");
+  renderStatusHelper();
+}
+
+function currentStatusScenario() {
+  return statusScenarios.find((scenario) => scenario.id === statusHelperChoice.value)
+    || statusScenarios[0];
+}
+
+function renderStatusHelper() {
+  const scenario = currentStatusScenario();
+  if (!scenario) {
+    statusHelperResult.innerHTML = "";
+    return;
+  }
+  const targetCommand = commands.find((item) => item.id === scenario.commandId);
+  const targetLabel = targetCommand ? commandLabel(targetCommand.command) : zones[scenario.zone].label;
+  const nextCommands = scenario.next.filter((command) => riskFilter === "all" || !isRiskyCommandText(command));
+  const hiddenRiskyCount = scenario.next.length - nextCommands.length;
+  statusHelperResult.innerHTML = `
+    <p>${escapeHtml(scenario.summary)}</p>
+    <div class="status-helper-groups">
+      <div>
+        <span>Check</span>
+        ${scenario.checks.map((command) => `<code>${escapeHtml(command)}</code>`).join("")}
+      </div>
+      <div>
+        <span>Next</span>
+        ${nextCommands.map((command) => `<code>${escapeHtml(command)}</code>`).join("")}
+      </div>
+    </div>
+    ${hiddenRiskyCount ? `<small>${hiddenRiskyCount} risky option${hiddenRiskyCount === 1 ? "" : "s"} hidden.</small>` : ""}
+    <button class="status-helper-action" type="button" data-status-helper-target>Show ${escapeHtml(targetLabel)}</button>
+  `;
+  statusHelperResult.querySelector("[data-status-helper-target]").addEventListener("click", () => {
+    focusStatusScenario(scenario);
+  });
+}
+
+function focusStatusScenario(scenario) {
+  centerZoneInMap(scenario.zone);
+  selectZone(scenario.zone, { pin: true, force: true });
+  if (scenario.commandId && visibleCommands().some((item) => item.id === scenario.commandId)) {
+    selectCommand(scenario.commandId);
+  }
 }
 
 function updateFlows() {
@@ -584,8 +666,15 @@ function setMode(mode) {
   modeButtons.forEach((item) => item.setAttribute("aria-pressed", String(item.dataset.mode === mode)));
 }
 
+function setRiskFilter(filter) {
+  riskFilter = filter === "all" ? "all" : "safe";
+  riskButtons.forEach((item) => {
+    item.setAttribute("aria-pressed", String(item.dataset.riskFilter === riskFilter));
+  });
+}
+
 function selectZone(zone, options = {}) {
-  if (options.pin && pinnedZone === zone) {
+  if (options.pin && pinnedZone === zone && !options.force) {
     selectedZone = null;
     pinnedZone = null;
     pinnedCommandId = null;
@@ -638,6 +727,18 @@ modeButtons.forEach((button) => {
   });
 });
 
+riskButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setRiskFilter(button.dataset.riskFilter);
+    renderStatusHelper();
+    updateFlows();
+  });
+});
+
+if (statusHelperChoice) {
+  statusHelperChoice.addEventListener("change", renderStatusHelper);
+}
+
 mapJumpButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const zone = button.dataset.jumpZone;
@@ -653,6 +754,8 @@ themeButtons.forEach((button) => {
 });
 
 setTheme(initialTheme());
+setRiskFilter("safe");
+renderStatusHelperOptions();
 drawLifelines();
 selectZone("workspace");
 window.requestAnimationFrame(() => centerZoneInMap("workspace"));

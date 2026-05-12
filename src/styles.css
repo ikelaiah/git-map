@@ -1064,6 +1064,97 @@ h1 {
   font-size: 0.72rem;
 }
 
+.status-helper-select {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.status-helper-select select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.status-helper-result {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-helper-result p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.42;
+}
+
+.status-helper-groups {
+  display: grid;
+  gap: 8px;
+}
+
+.status-helper-groups div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.status-helper-groups span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.status-helper-groups code {
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  font-size: 0.78rem;
+  padding: 3px 6px;
+  white-space: normal;
+}
+
+.status-helper-result small {
+  color: var(--warning-ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.status-helper-action {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--solid-bg);
+  color: var(--solid-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 900;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.status-helper-action:hover,
+.status-helper-action:focus-visible {
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 12%, var(--solid-bg));
+  outline: none;
+  transform: translateY(-1px);
+}
+
 .tool-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1259,6 +1350,11 @@ h1 {
 .commit-node:focus-visible circle:first-child,
 .commit-node.is-selected circle:first-child {
   stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.commit-node.is-conflict circle:first-child {
+  stroke: var(--warning-line);
   stroke-width: 4;
 }
 

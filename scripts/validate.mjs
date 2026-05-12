@@ -3,13 +3,16 @@ import vm from "node:vm";
 
 const errors = [];
 const dataCode = fs.readFileSync("src/data.js", "utf8");
+const branchModelCode = fs.readFileSync("src/branch-map-model.js", "utf8");
 const readme = fs.readFileSync("README.md", "utf8");
 const context = { window: {} };
 
 vm.createContext(context);
 vm.runInContext(dataCode, context, { filename: "src/data.js" });
+vm.runInContext(branchModelCode, context, { filename: "src/branch-map-model.js" });
 
 const data = context.window.gitMapData;
+const branchModel = context.window.gitBranchMapModel;
 
 function fail(message) {
   errors.push(message);
@@ -105,6 +108,35 @@ if (!data) {
     });
   });
 
+  (data.statusScenarios || []).forEach((scenario) => {
+    if (!isNonEmptyString(scenario.id)) {
+      fail("A status scenario is missing id.");
+      return;
+    }
+    ["label", "summary", "zone", "commandId"].forEach((field) => {
+      if (!isNonEmptyString(scenario[field])) {
+        fail(`Status scenario "${scenario.id}" is missing ${field}.`);
+      }
+    });
+    if (!zoneKeys.has(scenario.zone)) {
+      fail(`Status scenario "${scenario.id}" references unknown zone "${scenario.zone}".`);
+    }
+    if (!commandIds.has(scenario.commandId)) {
+      fail(`Status scenario "${scenario.id}" references unknown command id "${scenario.commandId}".`);
+    }
+    ["checks", "next"].forEach((field) => {
+      if (!Array.isArray(scenario[field]) || scenario[field].length === 0) {
+        fail(`Status scenario "${scenario.id}" is missing ${field} commands.`);
+      } else {
+        scenario[field].forEach((command) => {
+          if (!isNonEmptyString(command)) {
+            fail(`Status scenario "${scenario.id}" has an empty ${field} command.`);
+          }
+        });
+      }
+    });
+  });
+
   Object.entries(data.zones || {}).forEach(([key, zone]) => {
     (zone.nextCommands || []).forEach((command) => {
       if (!commandStrings.has(command) && !toolCommandStrings.has(command)) {
@@ -119,6 +151,66 @@ if (!data) {
     if (!commandStrings.has(command) && !toolCommandStrings.has(command)) {
       fail(`README documents unknown command "${command}".`);
     }
+  });
+}
+
+if (!branchModel) {
+  fail("src/branch-map-model.js did not expose window.gitBranchMapModel.");
+} else {
+  branchModel.validateBranchState(branchModel.initialState).forEach((error) => {
+    fail(`Initial branch sandbox state: ${error}`);
+  });
+
+  const createCommands = branchModel.createBranchCommands("feature-a", "c2");
+  if (createCommands[1] !== "git switch -c feature-a c2") {
+    fail("Branch creation command must include the selected base commit.");
+  }
+
+  const commitCommands = branchModel.commitCommands("feature-a", "Use \"quoted\" message");
+  if (commitCommands[1] !== "git commit -m \"Use 'quoted' message\"") {
+    fail("Commit command generation should keep generated shell quoting valid.");
+  }
+
+  const conflictCommands = branchModel.conflictScenarioCommands("conflict-demo", "c3");
+  [
+    "git switch -c conflict-demo c3",
+    "git merge conflict-demo",
+    "# CONFLICT (content): Merge conflict in index.html",
+    "git status",
+    "git diff",
+    "git add index.html",
+    "git commit"
+  ].forEach((command) => {
+    if (!conflictCommands.includes(command)) {
+      fail(`Conflict scenario is missing "${command}".`);
+    }
+  });
+
+  const label = branchModel.branchLabelMetrics(1460, "feature-long-name", 1500);
+  if (label.x < 18 || label.x + label.width > 1482) {
+    fail("Branch label positioning should stay inside the graph viewBox.");
+  }
+
+  const conflictState = branchModel.cloneState(branchModel.initialState);
+  conflictState.branches.push({ name: "conflict-demo", color: "#12836f", lane: 1, head: "c4", base: "c3" });
+  conflictState.commits.push(
+    { id: "c4", branch: "conflict-demo", message: "Edit index.html on conflict-demo", parents: ["c3"], x: 478, y: 170, type: "commit" },
+    { id: "c5", branch: "main", message: "Edit index.html on main", parents: ["c3"], x: 478, y: 98, type: "commit" },
+    { id: "c6", branch: "main", message: "Resolve conflict", parents: ["c5", "c4"], mergedFrom: "conflict-demo", x: 608, y: 98, type: "merge", conflict: true }
+  );
+  conflictState.branches[0].head = "c6";
+  conflictState.currentBranch = "main";
+  conflictState.selectedBranch = "main";
+  conflictState.selectedCommit = "c6";
+  conflictState.nextCommitNumber = 7;
+  conflictState.nextLane = 2;
+  conflictState.commandGroups.push({
+    title: "Resolve conflict-demo conflict",
+    commands: conflictCommands,
+    note: "Resolved index.html after Git reported a merge conflict."
+  });
+  branchModel.validateBranchState(conflictState).forEach((error) => {
+    fail(`Conflict branch sandbox state: ${error}`);
   });
 }
 

@@ -26,6 +26,13 @@
           </div>
         </div>
         <div class="control-group">
+          <span class="control-label" id="risk-label">Risk</span>
+          <div class="segmented-control risk-switch" role="group" aria-labelledby="risk-label">
+            <button type="button" data-risk-filter="safe" aria-pressed="true">Safe first</button>
+            <button type="button" data-risk-filter="all" aria-pressed="false">Show risky</button>
+          </div>
+        </div>
+        <div class="control-group">
           <span class="control-label" id="theme-label">Appearance</span>
           <div class="segmented-control theme-switch" role="group" aria-labelledby="theme-label">
             <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
@@ -68,6 +75,14 @@
             <li><b>4</b><span>Save locally with <code>git commit</code>.</span></li>
             <li><b>5</b><span>Share work with <code>git push</code>.</span></li>
           </ol>
+        </div>
+        <div class="learn-section status-helper">
+          <h3>What State Am I In?</h3>
+          <label class="status-helper-select">
+            Git status says
+            <select id="status-helper-choice"></select>
+          </label>
+          <div class="status-helper-result" id="status-helper-result"></div>
         </div>
       </aside>
 

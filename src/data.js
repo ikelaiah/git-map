@@ -422,12 +422,79 @@ const toolCommands = {
   ]
 };
 
+const statusScenarios = [
+  {
+    id: "unstaged",
+    label: "Unstaged changes",
+    zone: "workspace",
+    commandId: "add",
+    summary: "Edits are in your workspace but are not prepared for a commit yet.",
+    checks: ["git status", "git diff"],
+    next: ["git add <file>", "git restore <file>"]
+  },
+  {
+    id: "staged",
+    label: "Staged changes",
+    zone: "staging",
+    commandId: "commit",
+    summary: "The next commit snapshot is ready in the staging area.",
+    checks: ["git status", "git diff --staged"],
+    next: ["git commit -m \"message\"", "git restore --staged <file>"]
+  },
+  {
+    id: "ahead",
+    label: "Ahead of remote",
+    zone: "local",
+    commandId: "push",
+    summary: "Your local branch has commits that are not on the shared remote yet.",
+    checks: ["git status", "git log --oneline --graph --decorate --all"],
+    next: ["git push"]
+  },
+  {
+    id: "behind",
+    label: "Behind remote",
+    zone: "remote",
+    commandId: "pull",
+    summary: "The remote branch has commits your local branch does not have yet.",
+    checks: ["git status", "git fetch"],
+    next: ["git pull"]
+  },
+  {
+    id: "diverged",
+    label: "Diverged",
+    zone: "remote",
+    commandId: "fetch",
+    summary: "Both local and remote have commits the other side does not have.",
+    checks: ["git status", "git fetch", "git log --oneline --graph --decorate --all"],
+    next: ["git pull", "git rebase <branch>", "git merge <branch>"]
+  },
+  {
+    id: "conflict",
+    label: "Merge conflict",
+    zone: "workspace",
+    commandId: "add",
+    summary: "Git stopped during a merge because the same file area changed in different ways.",
+    checks: ["git status", "git diff"],
+    next: ["git add <file>", "git commit"]
+  },
+  {
+    id: "untracked",
+    label: "Untracked files",
+    zone: "workspace",
+    commandId: "add",
+    summary: "Git sees new files that are not part of the next commit yet.",
+    checks: ["git status"],
+    next: ["git add <file>", "git clean -fd"]
+  }
+];
+
 
   window.gitMapData = {
     zones,
     mainPathCommandIds,
     workspaceFocusedCommandIds,
     commands,
-    toolCommands
+    toolCommands,
+    statusScenarios
   };
 })();

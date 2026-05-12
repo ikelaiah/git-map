@@ -29,6 +29,7 @@ It also includes `branch-map.html`, an interactive Git Branch Map sandbox where 
 ## 🧭 How To Use
 
 - Use **Focused** mode to learn one area at a time.
+- Use **Safe first** to hide destructive commands, or **Show risky** when you want the full map.
 - Hover over a top card to preview commands for that Git area.
 - Click a top card to pin it active while you scroll and read the help panel.
 - Click the pinned top card again to unpin it.
@@ -38,8 +39,9 @@ It also includes `branch-map.html`, an interactive Git Branch Map sandbox where 
 - Use **Light**, **Dark**, or **System** appearance mode to match your preferred theme.
 - Follow the **Daily path** markers for the common `git pull`, `git add`, `git commit`, and `git push` flow.
 - Click a command ribbon in the diagram to highlight and jump to its detail card.
+- Use **What State Am I In?** to match common `git status` situations with the next useful command.
 - Use the command card **Copy** buttons to copy example commands.
-- Open **Git Branch Map** to click commits on `main`, create feature branches, add commits, merge branches, and review the generated command history.
+- Open **Git Branch Map** to click commits on `main`, create feature branches from selected commits, add commits, merge branches, simulate a conflict, and review the generated command history.
 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
@@ -53,6 +55,7 @@ The project stays no-build and dependency-free, but the page is split by respons
 - `branch-map.html`: interactive branch, commit, and merge sandbox.
 - `src/styles.css`: theme tokens, layout, and responsive styles.
 - `src/data.js`: Git areas, command flows, and helper commands.
+- `src/branch-map-model.js`: pure branch sandbox constants, command generators, and validation helpers.
 - `src/app.js`: rendering, SVG map drawing, and interactions.
 - `src/branch-map.js`: branch sandbox state, SVG graph drawing, undo/reset, and command history.
 - `scripts/validate.mjs`: data integrity checks.

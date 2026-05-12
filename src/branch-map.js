@@ -9,6 +9,7 @@ const createBranchButton = document.querySelector("#create-branch");
 const addCommitButton = document.querySelector("#add-commit");
 const mergeToMainButton = document.querySelector("#merge-to-main");
 const mergeSelectedButton = document.querySelector("#merge-selected");
+const simulateConflictButton = document.querySelector("#simulate-conflict");
 const mergeSourceSelect = document.querySelector("#merge-source");
 const mergeTargetSelect = document.querySelector("#merge-target");
 const undoButton = document.querySelector("#undo-action");
@@ -19,43 +20,30 @@ const stageHint = document.querySelector("#stage-hint");
 const selectedBaseLabel = document.querySelector("#selected-base");
 const commitTargetLabel = document.querySelector("#commit-target");
 const mergeHelperLabel = document.querySelector("#merge-helper");
+const conflictHelperLabel = document.querySelector("#conflict-helper");
 
-const laneGap = 72;
-const startX = 88;
-const commitGap = 130;
-const mainY = 98;
-const defaultBranchName = "feature-a";
-const defaultCommitMessage = "Add first change";
-const colors = ["#2f6fed", "#12836f", "#b56b12", "#7556f6", "#cf3f49", "#0f766e"];
-const initialState = {
-  currentBranch: "main",
-  selectedCommit: "c2",
-  selectedBranch: "main",
-  commandGroups: [
-    {
-      title: "Start repository",
-      commands: ["git switch main"],
-      note: "The sandbox starts on main."
-    }
-  ],
-  branches: [
-    { name: "main", color: "var(--blue)", lane: 0, head: "c3", base: null }
-  ],
-  commits: [
-    { id: "c1", branch: "main", message: "Initial commit", parents: [], x: startX, y: mainY, type: "commit" },
-    { id: "c2", branch: "main", message: "Set up app shell", parents: ["c1"], x: startX + commitGap, y: mainY, type: "commit" },
-    { id: "c3", branch: "main", message: "Document workflow", parents: ["c2"], x: startX + commitGap * 2, y: mainY, type: "commit" }
-  ],
-  nextCommitNumber: 4,
-  nextLane: 1
-};
+const {
+  laneGap,
+  commitGap,
+  mainY,
+  defaultBranchName,
+  defaultCommitMessage,
+  conflictBranchName,
+  conflictFileName,
+  colors,
+  initialState,
+  cloneState,
+  slugifyBranchName,
+  cleanMessage,
+  suggestNextBranchName,
+  createBranchCommands,
+  commitCommands,
+  conflictScenarioCommands,
+  branchLabelMetrics
+} = window.gitBranchMapModel;
 
 let state = cloneState(initialState);
 const undoStack = [];
-
-function cloneState(value) {
-  return JSON.parse(JSON.stringify(value));
-}
 
 function setTheme(theme) {
   const nextTheme = ["light", "dark", "system"].includes(theme) ? theme : "system";
@@ -88,19 +76,6 @@ function escapeHtml(value) {
     "\"": "&quot;",
     "'": "&#39;"
   })[char]);
-}
-
-function slugifyBranchName(value) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9._/-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .replace(/\/{2,}/g, "/");
-}
-
-function cleanMessage(value) {
-  return value.trim().replace(/\s+/g, " ") || "Update feature";
 }
 
 function branchByName(name) {
@@ -195,23 +170,8 @@ function createBranch() {
   state.selectedBranch = branchName;
   state.selectedCommit = selectedCommit.id;
   branchNameInput.value = suggestNextBranchName(branchName);
-  addCommandGroup(`Create ${branchName}`, [
-    "git switch main",
-    `git switch -c ${branchName}`
-  ], `Branch ${branchName} now points at ${selectedCommit.id}.`);
+  addCommandGroup(`Create ${branchName}`, createBranchCommands(branchName, selectedCommit.id), `Branch ${branchName} now points at ${selectedCommit.id}.`);
   render();
-}
-
-function suggestNextBranchName(previousName) {
-  const letterMatch = previousName.match(/^(.*-)([a-z])$/);
-  if (letterMatch && letterMatch[2] !== "z") {
-    return `${letterMatch[1]}${String.fromCharCode(letterMatch[2].charCodeAt(0) + 1)}`;
-  }
-  const match = previousName.match(/^(.*?)(\d+)$/);
-  if (match) {
-    return `${match[1]}${Number(match[2]) + 1}`;
-  }
-  return `${previousName}-2`;
 }
 
 function addCommit() {
@@ -243,10 +203,7 @@ function addCommit() {
   branch.head = commit.id;
   state.selectedCommit = commit.id;
   state.selectedBranch = branch.name;
-  addCommandGroup(`Commit on ${branch.name}`, [
-    `git switch ${branch.name}`,
-    `git commit -m "${message.replace(/"/g, "'")}"`
-  ], `Added ${commit.id} to ${branch.name}.`);
+  addCommandGroup(`Commit on ${branch.name}`, commitCommands(branch.name, message), `Added ${commit.id} to ${branch.name}.`);
   render();
 }
 
@@ -308,6 +265,91 @@ function mergeBranches(sourceName, targetName) {
     `git switch ${target.name}`,
     mergeCommand
   ], `Created merge commit ${commit.id} on ${target.name}.`);
+  render();
+}
+
+function uniqueBranchName(baseName) {
+  let candidate = baseName;
+  let suffix = 2;
+  while (branchByName(candidate)) {
+    candidate = `${baseName}-${suffix}`;
+    suffix += 1;
+  }
+  return candidate;
+}
+
+function nextCommitId() {
+  const id = `c${state.nextCommitNumber}`;
+  state.nextCommitNumber += 1;
+  return id;
+}
+
+function createConflictScenario() {
+  const mainBranch = branchByName("main");
+  const baseCommit = mainBranch ? commitById(mainBranch.head) : null;
+  if (!mainBranch || !baseCommit) {
+    showHint("Reset the sandbox before creating a conflict scenario.");
+    return;
+  }
+
+  pushUndo();
+  const branchName = uniqueBranchName(conflictBranchName);
+  const lane = state.nextLane;
+  const branch = {
+    name: branchName,
+    color: colors[lane % colors.length],
+    lane,
+    head: baseCommit.id,
+    base: baseCommit.id
+  };
+  state.nextLane += 1;
+  state.branches.push(branch);
+
+  const branchCommit = {
+    id: nextCommitId(),
+    branch: branch.name,
+    message: `Edit ${conflictFileName} on ${branch.name}`,
+    parents: [baseCommit.id],
+    x: baseCommit.x + commitGap,
+    y: mainY + branch.lane * laneGap,
+    type: "commit"
+  };
+  state.commits.push(branchCommit);
+  branch.head = branchCommit.id;
+
+  const mainCommit = {
+    id: nextCommitId(),
+    branch: "main",
+    message: `Edit ${conflictFileName} on main`,
+    parents: [baseCommit.id],
+    x: baseCommit.x + commitGap,
+    y: mainY,
+    type: "commit"
+  };
+  state.commits.push(mainCommit);
+  mainBranch.head = mainCommit.id;
+
+  const conflictCommit = {
+    id: nextCommitId(),
+    branch: "main",
+    message: "Resolve conflict",
+    parents: [mainBranch.head, branch.head],
+    mergedFrom: branch.name,
+    x: Math.max(mainCommit.x, branchCommit.x) + commitGap,
+    y: mainY,
+    type: "merge",
+    conflict: true
+  };
+  state.commits.push(conflictCommit);
+  mainBranch.head = conflictCommit.id;
+  state.currentBranch = "main";
+  state.selectedBranch = "main";
+  state.selectedCommit = conflictCommit.id;
+  addCommandGroup(
+    `Resolve ${branch.name} conflict`,
+    conflictScenarioCommands(branch.name, baseCommit.id),
+    `Resolved ${conflictFileName} after Git reported a merge conflict.`
+  );
   render();
 }
 
@@ -406,7 +448,8 @@ function renderGraph() {
 
   state.branches.forEach((branch) => {
     const branchHead = commitById(branch.head);
-    const labelX = Math.min(branchHead.x + 18, 900);
+    const labelMetrics = branchLabelMetrics(branchHead.x, branch.name, graphWidth);
+    const labelX = labelMetrics.x;
     const label = createSvgElement("g", {
       class: `branch-label${branch.name === state.currentBranch ? " is-current" : ""}`,
       tabindex: "0",
@@ -417,9 +460,8 @@ function renderGraph() {
     const y = branch.name === "main" ? mainY - 42 : mainY + branch.lane * laneGap - 42;
     const text = createSvgElement("text", { x: labelX + 13, y: y + 20 });
     text.textContent = branch.name;
-    const width = Math.max(74, branch.name.length * 8 + 34);
     label.append(
-      createSvgElement("rect", { x: labelX, y, width, height: 30, rx: 8, fill: branch.color }),
+      createSvgElement("rect", { x: labelX, y, width: labelMetrics.width, height: 30, rx: 8, fill: branch.color }),
       text
     );
     label.addEventListener("click", () => selectBranch(branch.name));
@@ -435,14 +477,14 @@ function renderGraph() {
   state.commits.forEach((commit) => {
     const branch = branchByName(commit.branch) || branchByName("main");
     const group = createSvgElement("g", {
-      class: `commit-node${commit.id === state.selectedCommit ? " is-selected" : ""}${commit.type === "merge" ? " is-merge" : ""}`,
+      class: `commit-node${commit.id === state.selectedCommit ? " is-selected" : ""}${commit.type === "merge" ? " is-merge" : ""}${commit.conflict ? " is-conflict" : ""}`,
       tabindex: "0",
       role: "button",
       "aria-label": `${commit.id}: ${commit.message}`
     });
     group.dataset.commitId = commit.id;
     group.append(
-      createSvgElement("circle", { cx: commit.x, cy: commit.y, r: commit.type === "merge" ? 15 : 13, fill: branch.color }),
+      createSvgElement("circle", { cx: commit.x, cy: commit.y, r: commit.type === "merge" ? 15 : 13, fill: commit.conflict ? "var(--warning-ink)" : branch.color }),
       createSvgElement("circle", { cx: commit.x, cy: commit.y, r: 5, fill: "var(--panel)" })
     );
     const idText = createSvgElement("text", { x: commit.x, y: commit.y + 35, "text-anchor": "middle" });
@@ -480,6 +522,9 @@ function renderControls() {
     : state.currentBranch === "main"
       ? "Choose a source below"
       : `${state.currentBranch} can merge into main`;
+  conflictHelperLabel.textContent = state.branches.some((branch) => branch.name.startsWith(conflictBranchName))
+    ? "Add another scenario"
+    : "Same-file edits";
   createBranchButton.disabled = selectedCommit?.branch !== "main";
   mergeToMainButton.disabled = state.currentBranch === "main";
   mergeSelectedButton.disabled = state.branches.length < 2;
@@ -520,6 +565,7 @@ createBranchButton.addEventListener("click", createBranch);
 addCommitButton.addEventListener("click", addCommit);
 mergeToMainButton.addEventListener("click", mergeToMain);
 mergeSelectedButton.addEventListener("click", mergeSelected);
+simulateConflictButton.addEventListener("click", createConflictScenario);
 undoButton.addEventListener("click", undo);
 resetButton.addEventListener("click", reset);
 copyHistoryButton.addEventListener("click", copyHistory);
