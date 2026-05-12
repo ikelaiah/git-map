@@ -24,6 +24,8 @@ const laneGap = 72;
 const startX = 88;
 const commitGap = 130;
 const mainY = 98;
+const defaultBranchName = "feature-login";
+const defaultCommitMessage = "Add login form";
 const colors = ["#2f6fed", "#12836f", "#b56b12", "#7556f6", "#cf3f49", "#0f766e"];
 const initialState = {
   currentBranch: "main",
@@ -205,7 +207,7 @@ function suggestNextBranchName(previousName) {
   if (match) {
     return `${match[1]}${Number(match[2]) + 1}`;
   }
-  return "feature-dashboard";
+  return `${previousName}-2`;
 }
 
 function addCommit() {
@@ -318,6 +320,8 @@ function undo() {
 function reset() {
   pushUndo();
   state = cloneState(initialState);
+  branchNameInput.value = defaultBranchName;
+  commitMessageInput.value = defaultCommitMessage;
   render();
 }
 
