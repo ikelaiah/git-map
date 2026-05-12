@@ -83,15 +83,6 @@ node scripts/validate.mjs
 - `git tag <name>`: mark a release point.
 - `git remote add origin <url>`: record a remote URL in local Git config.
 
-## 🌍 Publish With GitHub Pages
-
-1. Push this repository to GitHub.
-2. Go to repository **Settings** > **Pages**.
-3. Set the source to the branch that contains `index.html`.
-4. Save the setting and open the published Pages URL.
-
-✨ No build step or external dependency is required.
-
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE).
