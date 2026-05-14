@@ -1,8 +1,9 @@
 # Git Map
 
 [🌐 Live Demo](https://ikelaiah.github.io/git-map/)
+[GitHub Repository](https://github.com/ikelaiah/git-map)
 
-[![Version](https://img.shields.io/badge/Version-1.0.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.1.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
 [![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
@@ -25,27 +26,25 @@ Git Map is a dependency-free Git visualisation and situation solver for beginner
 - 🗂️ Local Repo
 - 🌐 Remote Repo
 
-Version 1.0 adds a pasteable `git status` analyzer, guided scenario journeys, and before/after command previews so users can connect their current Git state to the next useful route. It also includes `branch-map.html`, an interactive Git Branch Map sandbox where visual branch, commit, switch, and merge actions produce the Git command sequence behind them.
+Version 1.1 updates the command guidance for current Git behavior. The Git Branch Map now creates branches from any selected commit, generated histories include the realistic edit, stage, and commit flow, diverged pull guidance shows explicit fast-forward, rebase, and merge choices, and both HTML pages link back to the GitHub repository.
 
 ## 🧭 How To Use
 
+### How To Use Git Map
+
 - Use **Focused** mode to learn one area at a time.
 - Use **Safe first** to hide destructive commands, or **Show risky** when you want the full map.
-- Hover over a top card to preview commands for that Git area.
-- Click a top card to pin it active while you scroll and read the help panel.
-- Click the pinned top card again to unpin it.
-- Click another top card to change the pinned area.
-- Press `Enter` or `Space` on a focused top card to pin it with the keyboard.
-- Use **Everything** mode to see the full command map. This clears the pinned area.
-- Use **Light**, **Dark**, or **System** appearance mode to match your preferred theme.
-- Follow the **Daily path** markers for the common `git pull`, `git add`, `git commit`, and `git push` flow.
-- Click a command ribbon in the diagram to highlight and jump to its detail card.
+- Follow the **Daily path** markers for the common sync, add, commit, and push flow.
 - Paste real `git status` output into **Paste git status** to detect clean, staged, unstaged, untracked, ahead, behind, diverged, and conflict states.
-- Use **Scenario journeys** to step through common workflows such as edit-to-push, careful staging, conflict rescue, rejected push recovery, safe undo, and stash interruptions.
-- Read **Before**, **After**, and **Effect** previews on command cards to understand what each command changes before copying it.
-- Use **What State Am I In?** to match common `git status` situations with the next useful command.
-- Use the command card **Copy** buttons to copy example commands.
-- Open **Git Branch Map** to click any commit, create feature branches from selected commits, add commits, merge branches, simulate a conflict, and review the generated command history.
+- Step through **Scenario journeys** for common workflows such as careful staging, conflict rescue, rejected push recovery, safe undo, and stash interruptions.
+
+### How To Use Git Branch Map
+
+- Open **Git Branch Map** from the page tabs.
+- Click any commit to choose where a new branch should start.
+- Create feature branches, add commits, switch branches, and merge branches visually.
+- Simulate a conflict to see the edit, `git add`, and `git commit` steps Git expects during resolution.
+- Review or copy the generated command history for the graph you built.
 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 

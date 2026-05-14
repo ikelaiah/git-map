@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0] - 2026-05-15
+
+### Added
+
+- Added GitHub repository links to the `index.html` and `branch-map.html` page navigation.
+- Added validation coverage for branch command generation, staged commit flow, and branch name cleanup.
+
+### Changed
+
+- Updated the Git Branch Map so users can create a new branch from any selected commit, not only commits on `main`.
+- Updated generated branch sandbox commands to show realistic edit, stage, and commit sequences.
+- Updated merge conflict command history to include the required `git add` steps before committing.
+- Clarified current `git pull` guidance with explicit fast-forward, rebase, and merge options for diverged histories.
+- Tightened generated branch name cleanup to better match Git ref-name constraints.
+- Updated README command coverage and usage notes for the latest branch behavior.
+
 ## [1.0.0] - 2026-05-13
 
 ### Added
