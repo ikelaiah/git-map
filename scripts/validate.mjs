@@ -4,7 +4,11 @@ import vm from "node:vm";
 const errors = [];
 const dataCode = fs.readFileSync("src/data.js", "utf8");
 const branchModelCode = fs.readFileSync("src/branch-map-model.js", "utf8");
+const versionCode = fs.readFileSync("src/version.js", "utf8");
 const readme = fs.readFileSync("README.md", "utf8");
+const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
+const indexHtml = fs.readFileSync("index.html", "utf8");
+const branchHtml = fs.readFileSync("branch-map.html", "utf8");
 const context = { window: {} };
 
 vm.createContext(context);
@@ -13,6 +17,7 @@ vm.runInContext(branchModelCode, context, { filename: "src/branch-map-model.js" 
 
 const data = context.window.gitMapData;
 const branchModel = context.window.gitBranchMapModel;
+const version = versionCode.match(/const version = "([^"]+)";/)?.[1];
 
 function fail(message) {
   errors.push(message);
@@ -20,6 +25,31 @@ function fail(message) {
 
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+if (!version) {
+  fail("src/version.js is missing a string version constant.");
+} else {
+  if (!readme.includes(`Version-${version}`)) {
+    fail(`README version badge does not match src/version.js (${version}).`);
+  }
+  if (!changelog.includes(`## [${version}]`)) {
+    fail(`CHANGELOG is missing an entry for src/version.js (${version}).`);
+  }
+  [
+    ["index.html", indexHtml],
+    ["branch-map.html", branchHtml]
+  ].forEach(([name, html]) => {
+    if (!html.includes('class="app-version"')) {
+      fail(`${name} is missing an app-version label.`);
+    }
+    if (!html.includes('src="src/version.js"')) {
+      fail(`${name} does not load src/version.js.`);
+    }
+    if (html.includes(`>v${version}<`)) {
+      fail(`${name} hardcodes v${version} instead of using src/version.js.`);
+    }
+  });
 }
 
 if (!data) {
@@ -225,18 +255,35 @@ if (!branchModel) {
   });
 
   const createCommands = branchModel.createBranchCommands("feature-a", "c2");
-  if (createCommands[1] !== "git switch -c feature-a c2") {
+  if (createCommands[0] !== "git switch -c feature-a c2") {
     fail("Branch creation command must include the selected base commit.");
   }
 
   const commitCommands = branchModel.commitCommands("feature-a", "Use \"quoted\" message");
-  if (commitCommands[1] !== "git commit -m \"Use 'quoted' message\"") {
+  if (!commitCommands.includes("git add <file>")) {
+    fail("Commit command generation should stage a file before committing.");
+  }
+  if (commitCommands.at(-1) !== "git commit -m \"Use 'quoted' message\"") {
     fail("Commit command generation should keep generated shell quoting valid.");
   }
+
+  [
+    ["Feature A", "feature-a"],
+    ["/bad//name.lock.", "bad/name-lock"],
+    ["@", ""],
+    ["bug@{one}", "bug-one}"]
+  ].forEach(([input, expected]) => {
+    const actual = branchModel.slugifyBranchName(input);
+    if (actual !== expected) {
+      fail(`Branch name cleanup expected "${input}" to become "${expected}", got "${actual}".`);
+    }
+  });
 
   const conflictCommands = branchModel.conflictScenarioCommands("conflict-demo", "c3");
   [
     "git switch -c conflict-demo c3",
+    "# edit index.html",
+    "git add index.html",
     "git merge conflict-demo",
     "# CONFLICT (content): Merge conflict in index.html",
     "git status",

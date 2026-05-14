@@ -62,8 +62,8 @@ const zones = {
     description: "The shared copy on GitHub, GitLab, Bitbucket, or another Git server.",
     command: "git remote -v",
     summary: "The shared repository on GitHub, GitLab, Bitbucket, or another server.",
-    next: "Use git pull to receive changes or git push to share commits.",
-    nextCommands: ["git pull", "git push"]
+    next: "Use git pull --ff-only to receive fast-forward changes or git push to share commits.",
+    nextCommands: ["git pull --ff-only", "git push"]
   }
 };
 
@@ -340,7 +340,7 @@ const commands = [
     color: "var(--red)",
     marker: "arrow-red",
     zones: ["remote", "workspace"],
-    note: "Fetches remote commits, integrates them locally, and updates your files."
+    note: "Fetches the configured upstream and integrates it into the current branch. Current Git defaults to fast-forward-only unless pull strategy config or options say otherwise."
   },
   {
     id: "push",
@@ -400,6 +400,7 @@ const toolCommands = {
   local: [
     { command: "git log --oneline --graph --decorate --all", note: "Read branches, tags, and commits as a compact graph." },
     { command: "git branch", note: "List local branches." },
+    { command: "git switch -c <new-branch> <start-point>", note: "Create a branch at a specific commit, branch, tag, or ref." },
     { command: "git merge <branch>", note: "Bring another branch into the current branch." },
     { command: "git rebase <branch>", note: "Replay commits on top of another branch. Use carefully.", caution: true },
     { command: "git cherry-pick <commit>", note: "Copy one commit onto the current branch." },
@@ -411,7 +412,10 @@ const toolCommands = {
   remote: [
     { command: "git remote add origin <url>", note: "Connect a local repository to a remote." },
     { command: "git remote -v", note: "Show remote repository URLs." },
-    { command: "git branch -r", note: "List branches known from the remote." }
+    { command: "git branch -r", note: "List branches known from the remote." },
+    { command: "git pull --ff-only", note: "Fetch and update only when the current branch can fast-forward." },
+    { command: "git pull --rebase", note: "Fetch and replay local commits on top of the upstream. Use carefully.", caution: true },
+    { command: "git pull --no-rebase", note: "Fetch and merge the upstream, creating a merge commit when needed." }
   ],
   all: [
     { command: "git status", note: "Start here when you are unsure what Git sees." },
@@ -535,8 +539,8 @@ const commandPreviews = {
   },
   pull: {
     before: "The remote may have commits you do not have locally.",
-    after: "Remote commits are fetched and integrated, then workspace files update.",
-    effect: "Pull before pushing when the remote moved ahead."
+    after: "Remote commits are fetched and integrated when the result matches the pull strategy.",
+    effect: "With current Git defaults, diverged histories need an explicit rebase or merge choice."
   },
   push: {
     before: "Local commits exist that the remote does not have.",
@@ -567,7 +571,7 @@ const statusScenarios = [
     commandId: "pull",
     summary: "There are no local file edits or staged changes waiting to be saved.",
     checks: ["git status", "git fetch"],
-    next: ["git pull", "git switch -c <branch>"]
+    next: ["git pull --ff-only", "git switch -c <branch>"]
   },
   {
     id: "unstaged",
@@ -603,16 +607,16 @@ const statusScenarios = [
     commandId: "pull",
     summary: "The remote branch has commits your local branch does not have yet.",
     checks: ["git status", "git fetch"],
-    next: ["git pull"]
+    next: ["git pull --ff-only"]
   },
   {
     id: "diverged",
     label: "Diverged",
     zone: "remote",
     commandId: "fetch",
-    summary: "Both local and remote have commits the other side does not have.",
+    summary: "Both local and remote have commits the other side does not have. Plain git pull may stop under the fast-forward-only default, so choose rebase or merge.",
     checks: ["git status", "git fetch", "git log --oneline --graph --decorate --all"],
-    next: ["git pull", "git rebase <branch>", "git merge <branch>"]
+    next: ["git pull --rebase", "git pull --no-rebase", "git merge origin/<branch>"]
   },
   {
     id: "conflict",
@@ -757,7 +761,7 @@ const commandJourneys = [
     steps: [
       { title: "Update remote view", commandId: "fetch", zone: "remote", note: "Download remote history without changing your workspace." },
       { title: "Read the graph", commandId: "log-graph", zone: "local", note: "See whether your branch is behind or diverged." },
-      { title: "Integrate remote commits", commandId: "pull", zone: "remote", note: "Bring remote commits into your local branch." },
+      { title: "Integrate remote commits", command: "git pull --rebase", zone: "remote", note: "Replay your unpushed local commits on top of the updated upstream. Use git pull --no-rebase instead when the project expects merge commits." },
       { title: "Resolve if needed", command: "git status", zone: "workspace", note: "If Git reports conflicts, resolve and stage them before continuing." },
       { title: "Push again", commandId: "push", zone: "local", note: "Publish after your branch includes the remote changes." }
     ]

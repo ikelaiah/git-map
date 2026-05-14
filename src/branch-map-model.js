@@ -37,12 +37,23 @@
   }
 
   function slugifyBranchName(value) {
-    return value
+    const cleaned = value
       .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9._/-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .replace(/\/{2,}/g, "/");
+      .replace(/[\x00-\x20\x7f~^:?*[\\]+/g, "-")
+      .replace(/@{/g, "-")
+      .replace(/\.{2,}/g, ".")
+      .replace(/\/{2,}/g, "/")
+      .replace(/^-+|-+$/g, "");
+    const branchName = cleaned
+      .split("/")
+      .map((part) => part
+        .replace(/^\.+/, "")
+        .replace(/\.+$/g, "")
+        .replace(/\.lock$/, "-lock"))
+      .filter(Boolean)
+      .join("/");
+    return branchName === "@" ? "" : branchName;
   }
 
   function cleanMessage(value) {
@@ -67,7 +78,6 @@
 
   function createBranchCommands(branchName, commitId) {
     return [
-      "git switch main",
       `git switch -c ${branchName} ${commitId}`
     ];
   }
@@ -75,6 +85,8 @@
   function commitCommands(branchName, message) {
     return [
       `git switch ${branchName}`,
+      "# edit files",
+      "git add <file>",
       `git commit -m "${commandSafeMessage(message)}"`
     ];
   }
@@ -82,13 +94,18 @@
   function conflictScenarioCommands(branchName, baseCommitId, fileName = conflictFileName) {
     return [
       `git switch -c ${branchName} ${baseCommitId}`,
+      `# edit ${fileName}`,
+      `git add ${fileName}`,
       `git commit -m "Edit ${fileName} on ${branchName}"`,
       "git switch main",
+      `# edit ${fileName}`,
+      `git add ${fileName}`,
       `git commit -m "Edit ${fileName} on main"`,
       `git merge ${branchName}`,
       `# CONFLICT (content): Merge conflict in ${fileName}`,
       "git status",
       "git diff",
+      `# edit ${fileName}`,
       `git add ${fileName}`,
       "git commit"
     ];
