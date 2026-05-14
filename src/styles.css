@@ -200,6 +200,15 @@ h1 {
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
+.app-version {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  padding: 8px 4px;
+}
+
 .page-tabs a:hover,
 .page-tabs a:focus-visible,
 .page-tabs a[aria-current="page"] {
@@ -689,24 +698,21 @@ h1 {
 }
 
 .workflow-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 18px;
+  display: grid;
+  gap: 4px;
   margin-bottom: 12px;
 }
 
-.workflow-heading span {
+.workflow-heading p {
+  margin: 0;
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .workflow-heading h2 {
-  margin: 3px 0 0;
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  margin: 0;
+  font-size: 1.18rem;
   line-height: 1.15;
 }
 
