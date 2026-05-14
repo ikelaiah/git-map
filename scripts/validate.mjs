@@ -225,18 +225,35 @@ if (!branchModel) {
   });
 
   const createCommands = branchModel.createBranchCommands("feature-a", "c2");
-  if (createCommands[1] !== "git switch -c feature-a c2") {
+  if (createCommands[0] !== "git switch -c feature-a c2") {
     fail("Branch creation command must include the selected base commit.");
   }
 
   const commitCommands = branchModel.commitCommands("feature-a", "Use \"quoted\" message");
-  if (commitCommands[1] !== "git commit -m \"Use 'quoted' message\"") {
+  if (!commitCommands.includes("git add <file>")) {
+    fail("Commit command generation should stage a file before committing.");
+  }
+  if (commitCommands.at(-1) !== "git commit -m \"Use 'quoted' message\"") {
     fail("Commit command generation should keep generated shell quoting valid.");
   }
+
+  [
+    ["Feature A", "feature-a"],
+    ["/bad//name.lock.", "bad/name-lock"],
+    ["@", ""],
+    ["bug@{one}", "bug-one}"]
+  ].forEach(([input, expected]) => {
+    const actual = branchModel.slugifyBranchName(input);
+    if (actual !== expected) {
+      fail(`Branch name cleanup expected "${input}" to become "${expected}", got "${actual}".`);
+    }
+  });
 
   const conflictCommands = branchModel.conflictScenarioCommands("conflict-demo", "c3");
   [
     "git switch -c conflict-demo c3",
+    "# edit index.html",
+    "git add index.html",
     "git merge conflict-demo",
     "# CONFLICT (content): Merge conflict in index.html",
     "git status",

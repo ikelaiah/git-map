@@ -142,8 +142,8 @@ function selectBranch(branchName) {
 function createBranch() {
   const selectedCommit = commitById(state.selectedCommit);
   const branchName = slugifyBranchName(branchNameInput.value);
-  if (!selectedCommit || selectedCommit.branch !== "main") {
-    showHint("Select a commit on main before creating a branch.");
+  if (!selectedCommit) {
+    showHint("Select a commit before creating a branch.");
     return;
   }
   if (!branchName) {
@@ -513,9 +513,9 @@ function renderControls() {
     ? state.branches.find((branch) => branch.name !== "main")?.name || "main"
     : state.currentBranch;
   mergeTargetSelect.value = state.currentBranch === "main" ? "main" : "main";
-  selectedBaseLabel.textContent = selectedCommit?.branch === "main"
-    ? `From ${selectedCommit.id} on main`
-    : "Select a main commit";
+  selectedBaseLabel.textContent = selectedCommit
+    ? `From ${selectedCommit.id} on ${selectedCommit.branch}`
+    : "Select a commit";
   commitTargetLabel.textContent = `On ${state.currentBranch}`;
   mergeHelperLabel.textContent = state.branches.length < 2
     ? "Create a branch first"
@@ -525,19 +525,19 @@ function renderControls() {
   conflictHelperLabel.textContent = state.branches.some((branch) => branch.name.startsWith(conflictBranchName))
     ? "Add another scenario"
     : "Same-file edits";
-  createBranchButton.disabled = selectedCommit?.branch !== "main";
+  createBranchButton.disabled = !selectedCommit;
   mergeToMainButton.disabled = state.currentBranch === "main";
   mergeSelectedButton.disabled = state.branches.length < 2;
-  createBranchButton.textContent = selectedCommit?.branch === "main"
+  createBranchButton.textContent = selectedCommit
     ? `Create branch from ${selectedCommit.id}`
-    : "Select a main commit first";
+    : "Select a commit first";
   addCommitButton.textContent = `Commit to ${state.currentBranch}`;
   mergeToMainButton.textContent = state.currentBranch === "main"
     ? "Select a branch to merge to main"
     : `Merge ${state.currentBranch} into main`;
   undoButton.disabled = undoStack.length === 0;
   showHint(state.currentBranch === "main"
-    ? "Click a commit on main to create a branch, or add another commit to main."
+    ? "Click any commit to create a branch from that point, or add another commit to main."
     : `Working on ${state.currentBranch}. Add commits, switch branches, or merge it back into main.`);
 }
 

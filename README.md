@@ -45,7 +45,7 @@ Version 1.0 adds a pasteable `git status` analyzer, guided scenario journeys, an
 - Read **Before**, **After**, and **Effect** previews on command cards to understand what each command changes before copying it.
 - Use **What State Am I In?** to match common `git status` situations with the next useful command.
 - Use the command card **Copy** buttons to copy example commands.
-- Open **Git Branch Map** to click commits on `main`, create feature branches from selected commits, add commits, merge branches, simulate a conflict, and review the generated command history.
+- Open **Git Branch Map** to click any commit, create feature branches from selected commits, add commits, merge branches, simulate a conflict, and review the generated command history.
 
 ⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
@@ -77,7 +77,10 @@ node scripts/validate.mjs
 - `git add -p`: stage selected hunks instead of whole files.
 - `git commit -m "message"`: save staged changes as a local commit.
 - `git push`: publish local commits to the shared remote branch.
-- `git pull`: fetch and integrate remote commits into the current branch.
+- `git pull`: fetch and integrate remote commits into the current branch; current Git defaults to fast-forward-only unless pull strategy config or options say otherwise.
+- `git pull --ff-only`: fetch and update only when the current branch can fast-forward.
+- `git pull --rebase`: fetch and replay local commits on top of the upstream.
+- `git pull --no-rebase`: fetch and merge the upstream, creating a merge commit when needed.
 - `git fetch`: update remote-tracking branches without changing workspace files.
 - `git diff`: review unstaged workspace edits.
 - `git diff --staged`: review the staged snapshot before committing.
