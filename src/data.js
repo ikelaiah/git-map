@@ -400,6 +400,7 @@ const toolCommands = {
   local: [
     { command: "git log --oneline --graph --decorate --all", note: "Read branches, tags, and commits as a compact graph." },
     { command: "git branch", note: "List local branches." },
+    { command: "git switch -c <new-branch> <start-point>", note: "Create a branch at a specific commit, branch, tag, or ref." },
     { command: "git merge <branch>", note: "Bring another branch into the current branch." },
     { command: "git rebase <branch>", note: "Replay commits on top of another branch. Use carefully.", caution: true },
     { command: "git cherry-pick <commit>", note: "Copy one commit onto the current branch." },

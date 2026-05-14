@@ -6,7 +6,9 @@
 
 - Added GitHub repository links to the `index.html` and `branch-map.html` page navigation.
 - Added a quiet `v1.1.0` version label to both HTML page headers.
-- Added validation coverage for branch command generation, staged commit flow, and branch name cleanup.
+- Added `src/version.js` as the shared browser-side version source for both HTML pages.
+- Added short command example notes for placeholders and visual commit IDs.
+- Added validation coverage for branch command generation, staged commit flow, branch name cleanup, and shared version labels.
 
 ### Changed
 
@@ -15,6 +17,8 @@
 - Updated merge conflict command history to include the required `git add` steps before committing.
 - Clarified current `git pull` guidance with explicit fast-forward, rebase, and merge options for diverged histories.
 - Tightened generated branch name cleanup to better match Git ref-name constraints.
+- Tightened the main page intro copy.
+- Aligned the page header layout across Git Map and Git Branch Map, with Git Map desktop filters sharing a compact row.
 - Reduced the Situation Solver heading hierarchy so the feature name is the heading and the route-matching text is supporting copy.
 - Updated README command coverage and usage notes for the latest branch behavior.
 

@@ -28,6 +28,8 @@ Git Map is a dependency-free Git visualisation and situation solver for beginner
 
 Version 1.1 updates the command guidance for current Git behavior. The Git Branch Map now creates branches from any selected commit, generated histories include the realistic edit, stage, and commit flow, diverged pull guidance shows explicit fast-forward, rebase, and merge choices, and both HTML pages link back to the GitHub repository.
 
+Commands in the app are examples. Replace placeholders such as `<file>`, `<branch>`, `<commit>`, and visual IDs like `c2` with real paths, branch names, commit SHAs, tags, or refs from your repository.
+
 ## 🧭 How To Use
 
 ### How To Use Git Map
@@ -57,6 +59,7 @@ The project stays no-build and dependency-free, but the page is split by respons
 - `index.html`: page shell and static content.
 - `branch-map.html`: interactive branch, commit, and merge sandbox.
 - `src/styles.css`: theme tokens, layout, and responsive styles.
+- `src/version.js`: shared browser-side version label for the HTML pages.
 - `src/data.js`: Git areas, command flows, before/after previews, status detectors, and scenario journeys.
 - `src/branch-map-model.js`: pure branch sandbox constants, command generators, and validation helpers.
 - `src/app.js`: rendering, SVG map drawing, and interactions.
@@ -85,6 +88,7 @@ node scripts/validate.mjs
 - `git diff --staged`: review the staged snapshot before committing.
 - `git switch <branch>`: move to another branch.
 - `git switch -c <branch>`: create and move to a new branch.
+- `git switch -c <new-branch> <start-point>`: create and move to a new branch from a specific commit, branch, tag, or ref.
 - `git merge <branch>`: bring another branch into the current branch.
 - `git rebase <branch>`: replay commits on top of another branch.
 - `git cherry-pick <commit>`: copy one commit onto the current branch.

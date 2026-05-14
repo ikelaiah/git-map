@@ -16,7 +16,7 @@
           <a href="index.html">Git Map</a>
           <a href="branch-map.html" aria-current="page">Git Branch Map</a>
           <a href="https://github.com/ikelaiah/git-map" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <span class="app-version">v1.1.0</span>
+          <span class="app-version"></span>
         </nav>
       </div>
       <div class="control-stack">
@@ -117,12 +117,14 @@
             <h2>Commands</h2>
             <button class="copy-button" type="button" id="copy-history">Copy</button>
           </div>
+          <p class="command-note"><strong>Commands are examples.</strong> Commit IDs like <code>c2</code> represent the selected commit SHA or ref in a real repository.</p>
           <ol class="command-history" id="command-history" aria-live="polite"></ol>
         </section>
       </aside>
     </section>
   </main>
 
+  <script src="src/version.js"></script>
   <script src="src/branch-map-model.js"></script>
   <script src="src/branch-map.js"></script>
 </body>
