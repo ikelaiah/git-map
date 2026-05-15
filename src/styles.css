@@ -187,6 +187,59 @@ h1 {
   line-height: 1.55;
 }
 
+.start-here {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 720px;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue, #2f6fed);
+  border-radius: 10px;
+  background: var(--switch-bg);
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.start-here[hidden] {
+  display: none;
+}
+
+.start-here-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.start-here-text {
+  margin: 0;
+  flex: 1;
+}
+
+.start-here-text a {
+  color: var(--blue, #2f6fed);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.start-here-dismiss {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.start-here-dismiss:hover,
+.start-here-dismiss:focus-visible {
+  border-color: var(--line);
+  color: var(--ink);
+}
+
 .page-tabs {
   display: flex;
   flex-wrap: wrap;
