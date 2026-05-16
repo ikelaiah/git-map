@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panic Recovery — Git Map</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main>
+    <section class="topbar" aria-labelledby="page-title">
+      <div>
+        <h1 id="page-title">Panic Recovery</h1>
+        <p class="intro">You did something and you are not sure if it is fixable. Start here.</p>
+        <nav class="page-tabs" aria-label="Git map pages">
+          <a href="index.html">Git Map</a>
+          <a href="branch-map.html">Git Branch Map</a>
+          <a href="panic.html" aria-current="page">Panic Recovery</a>
+          <a href="https://github.com/ikelaiah/git-map" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <span class="app-version"></span>
+        </nav>
+      </div>
+      <div class="control-stack">
+        <div class="control-group">
+          <span class="control-label" id="theme-label">Appearance</span>
+          <div class="segmented-control theme-switch" role="group" aria-labelledby="theme-label">
+            <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+            <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+            <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panic-tree-panel" aria-labelledby="panic-tree-title">
+      <header class="panic-tree-header">
+        <div>
+          <h2 id="panic-tree-title">Guided rescue</h2>
+          <p>Answer a couple of questions and we will point you at the right recovery.</p>
+        </div>
+        <button type="button" id="panic-tree-reset" class="panic-tree-reset">Start over</button>
+      </header>
+      <div id="panic-tree" class="panic-tree"></div>
+      <p id="panic-stub-message" class="panic-stub" hidden>This path is coming in a later day of v1.3. For now, scan the scenarios below or check the <a href="index.html#workflow-title">Situation Solver</a> on the main Git Map page.</p>
+    </section>
+
+    <section class="panic-list-panel" aria-labelledby="panic-list-title">
+      <header class="panic-list-header">
+        <h2 id="panic-list-title">Or pick from the list</h2>
+        <p>Each scenario explains what happened, how to fix it, and what to do differently next time.</p>
+      </header>
+      <div id="panic-cards" class="panic-cards"></div>
+    </section>
+  </main>
+
+  <script src="src/version.js"></script>
+  <script src="src/panic-data.js"></script>
+  <script src="src/panic.js"></script>
+  <script>
+    (() => {
+      const themeButtons = document.querySelectorAll("[data-theme-choice]");
+      if (!themeButtons.length) return;
+      const STORAGE_KEY = "git-map-theme";
+      function apply(choice) {
+        const next = ["light", "dark", "system"].includes(choice) ? choice : "system";
+        document.documentElement.dataset.theme = next;
+        themeButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.themeChoice === next));
+        });
+        try { localStorage.setItem(STORAGE_KEY, next); } catch {}
+      }
+      let initial = "system";
+      try { initial = localStorage.getItem(STORAGE_KEY) || "system"; } catch {}
+      apply(initial);
+      themeButtons.forEach((button) => {
+        button.addEventListener("click", () => apply(button.dataset.themeChoice));
+      });
+    })();
+  </script>
+</body>
+</html>

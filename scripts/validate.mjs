@@ -4,19 +4,23 @@ import vm from "node:vm";
 const errors = [];
 const dataCode = fs.readFileSync("src/data.js", "utf8");
 const branchModelCode = fs.readFileSync("src/branch-map-model.js", "utf8");
+const panicDataCode = fs.readFileSync("src/panic-data.js", "utf8");
 const versionCode = fs.readFileSync("src/version.js", "utf8");
 const readme = fs.readFileSync("README.md", "utf8");
 const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
 const indexHtml = fs.readFileSync("index.html", "utf8");
 const branchHtml = fs.readFileSync("branch-map.html", "utf8");
+const panicHtml = fs.readFileSync("panic.html", "utf8");
 const context = { window: {} };
 
 vm.createContext(context);
 vm.runInContext(dataCode, context, { filename: "src/data.js" });
 vm.runInContext(branchModelCode, context, { filename: "src/branch-map-model.js" });
+vm.runInContext(panicDataCode, context, { filename: "src/panic-data.js" });
 
 const data = context.window.gitMapData;
 const branchModel = context.window.gitBranchMapModel;
+const panicData = context.window.panicData;
 const version = versionCode.match(/const version = "([^"]+)";/)?.[1];
 
 function fail(message) {
@@ -38,7 +42,8 @@ if (!version) {
   }
   [
     ["index.html", indexHtml],
-    ["branch-map.html", branchHtml]
+    ["branch-map.html", branchHtml],
+    ["panic.html", panicHtml]
   ].forEach(([name, html]) => {
     if (!html.includes('class="app-version"')) {
       fail(`${name} is missing an app-version label.`);
@@ -321,6 +326,88 @@ if (!branchModel) {
   });
   branchModel.validateBranchState(conflictState).forEach((error) => {
     fail(`Conflict branch sandbox state: ${error}`);
+  });
+}
+
+if (!panicData) {
+  fail("src/panic-data.js did not expose window.panicData.");
+} else {
+  const recoveryIds = new Set();
+  const VALID_REVERSIBILITY = new Set(["safe", "caution", "danger"]);
+
+  (panicData.recoveries || []).forEach((recovery) => {
+    if (!isNonEmptyString(recovery.id)) {
+      fail("A panic recovery is missing id.");
+      return;
+    }
+    if (recoveryIds.has(recovery.id)) {
+      fail(`Duplicate panic recovery id "${recovery.id}".`);
+    }
+    recoveryIds.add(recovery.id);
+
+    ["title", "diagnosis", "whyItWorks", "avoidNextTime"].forEach((field) => {
+      if (!isNonEmptyString(recovery[field])) {
+        fail(`Panic recovery "${recovery.id}" is missing ${field}.`);
+      }
+    });
+
+    if (!VALID_REVERSIBILITY.has(recovery.reversibility)) {
+      fail(`Panic recovery "${recovery.id}" has unknown reversibility "${recovery.reversibility}".`);
+    }
+
+    if (!Array.isArray(recovery.commands) || recovery.commands.length === 0) {
+      fail(`Panic recovery "${recovery.id}" is missing commands.`);
+    } else {
+      recovery.commands.forEach((step, index) => {
+        if (!isNonEmptyString(step.command) || !isNonEmptyString(step.note)) {
+          fail(`Panic recovery "${recovery.id}" command ${index} is missing command or note.`);
+        }
+      });
+    }
+  });
+
+  const referencedRecoveryIds = new Set();
+
+  function walkTreeOptions(options, path) {
+    if (!Array.isArray(options) || options.length === 0) {
+      fail(`Panic tree node at ${path || "root"} is missing options.`);
+      return;
+    }
+    options.forEach((option, index) => {
+      const optionPath = `${path}[${index}]`;
+      if (!isNonEmptyString(option.id) || !isNonEmptyString(option.label)) {
+        fail(`Panic tree option ${optionPath} is missing id or label.`);
+        return;
+      }
+      const hasRecovery = isNonEmptyString(option.recoveryId);
+      const hasChildren = Array.isArray(option.options);
+      const isStub = option.stub === true;
+      if (hasRecovery) {
+        referencedRecoveryIds.add(option.recoveryId);
+        if (!recoveryIds.has(option.recoveryId)) {
+          fail(`Panic tree option "${option.id}" references unknown recovery "${option.recoveryId}".`);
+        }
+      } else if (hasChildren) {
+        if (!isNonEmptyString(option.nextQuestion)) {
+          fail(`Panic tree option "${option.id}" has children but no nextQuestion.`);
+        }
+        walkTreeOptions(option.options, `${optionPath}.options`);
+      } else if (!isStub) {
+        fail(`Panic tree option "${option.id}" has no recovery, no children, and is not marked stub.`);
+      }
+    });
+  }
+
+  if (!panicData.tree || !isNonEmptyString(panicData.tree.rootQuestion)) {
+    fail("Panic tree is missing rootQuestion.");
+  } else {
+    walkTreeOptions(panicData.tree.rootOptions, "rootOptions");
+  }
+
+  recoveryIds.forEach((id) => {
+    if (!referencedRecoveryIds.has(id)) {
+      fail(`Panic recovery "${id}" is not reachable from the decision tree.`);
+    }
   });
 }
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0] - 2026-05-16
+
+### Added
+
+- Added **Panic Recovery**, a third top-level page (`panic.html`) for beginners who think they have broken something. A guided decision tree narrows the situation in two or three questions and scrolls the matching recovery card into view with a colour pulse; the full list of scenarios is also visible below the tree for direct browsing.
+- Added 11 recovery scenarios: wrong-branch commit (local), accidental commit to main (local), mistake in the last local commit, lost edits after `git reset --hard`, detached HEAD, rejected push, aborting a merge or rebase conflict, lost stash, deleted branch with unmerged commits, force-pushed and overwrote a teammate, and committed secrets or huge files.
+- Added `src/panic-data.js` with the recoveries and decision tree, and `src/panic.js` with the tree renderer, card renderer, and scroll-and-pulse behaviour.
+- Added `panic.html` page shell with the Panic Recovery tab in the shared page navigation (Git Map and Git Branch Map link to it too).
+- Added Panic Recovery validation in `scripts/validate.mjs`: every recovery has required fields and a known reversibility level; every tree leaf references a real recovery; every recovery is reachable from the tree; `panic.html` carries the shared version label.
+
+### Changed
+
+- Updated README to describe Panic Recovery, how to use it, and where the new source files live.
+
 ## [1.2.1] - 2026-05-16
 
 ### Changed

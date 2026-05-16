@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node scripts/validate.mjs)"
+      "Bash(node scripts/validate.mjs)",
+      "Bash(powershell -NoProfile -Command \"\\(Get-Content 'src/styles.css' | Measure-Object -Line\\).Lines\")"
     ]
   }
 }
