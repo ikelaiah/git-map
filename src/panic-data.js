@@ -19,8 +19,8 @@ window.panicData = (() => {
     {
       id: "panic-commit-on-main",
       title: "I committed to main by accident (not pushed yet)",
-      reversibility: "safe",
-      diagnosis: "You made one or more commits directly on main, but you have not pushed. You can move those commits onto a feature branch and rewind main locally.",
+      reversibility: "caution",
+      diagnosis: "You made one or more commits directly on main, but you have not pushed. You can move those commits onto a feature branch and rewind main locally. The rewind step uses git reset --hard, which is destructive — capture the feature branch first so the work survives.",
       commands: [
         { command: "git log --oneline -5", note: "Note the SHA of the commit main was on before your accidental commits." },
         { command: "git branch <feature-branch>", note: "Create a feature branch that points at your current commit, preserving the work." },
