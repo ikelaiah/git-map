@@ -3,7 +3,7 @@
 [🌐 Live Demo](https://ikelaiah.github.io/git-map/)
 [GitHub Repository](https://github.com/ikelaiah/git-map)
 
-[![Version](https://img.shields.io/badge/Version-1.1.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.2.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
 [![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
@@ -26,7 +26,9 @@ Git Map is a dependency-free Git visualisation and situation solver for beginner
 - 🗂️ Local Repo
 - 🌐 Remote Repo
 
-Version 1.1 updates the command guidance for current Git behavior. The Git Branch Map now creates branches from any selected commit, generated histories include the realistic edit, stage, and commit flow, diverged pull guidance shows explicit fast-forward, rebase, and merge choices, and both HTML pages link back to the GitHub repository.
+Version 1.2 sharpens onboarding and refines the risk and recovery guidance. A dismissible "Start here" callout points beginners at the Beginner Daily Path on the overview page and at the create-from-commit flow on the Git Branch Map. The diverged pull scenario now suggests `git fetch` followed by `git merge origin/<branch>` as a clear two-step pair, and `git reset --soft HEAD~1` is presented as a caution rather than a danger because it keeps your edits staged.
+
+Version 1.1 updated the command guidance for current Git behavior. The Git Branch Map creates branches from any selected commit, generated histories include the realistic edit, stage, and commit flow, diverged pull guidance shows explicit fast-forward, rebase, and merge choices, and both HTML pages link back to the GitHub repository.
 
 Commands in the app are examples. Replace placeholders such as `<file>`, `<branch>`, `<commit>`, and visual IDs like `c2` with real paths, branch names, commit SHAs, tags, or refs from your repository.
 

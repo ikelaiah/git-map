@@ -12,6 +12,11 @@
       <div>
         <h1 id="page-title">Git Map</h1>
         <p class="intro">Explore how Git commands move work between stash, workspace, staging, local history, and remote repositories.</p>
+        <aside class="start-here" id="start-here" role="note" hidden>
+          <span class="start-here-icon" aria-hidden="true">👉</span>
+          <p class="start-here-text">New here? Follow the <a href="#daily-path">Beginner Daily Path</a> — pull, edit, add, commit, push.</p>
+          <button class="start-here-dismiss" type="button" id="start-here-dismiss" aria-label="Dismiss start here callout">×</button>
+        </aside>
         <nav class="page-tabs" aria-label="Git map pages">
           <a href="index.html" aria-current="page">Git Map</a>
           <a href="branch-map.html">Git Branch Map</a>
@@ -115,7 +120,7 @@
           <div class="legend-item"><span class="legend-dot" style="--dot: var(--violet)"></span><span>Violet flows temporarily store work without committing it.</span></div>
           <div class="legend-item"><span class="legend-pill"><b>D</b> Daily</span><span>The daily marker highlights the common pull, add, commit, and push flow.</span></div>
         </div>
-        <div class="learn-section">
+        <div class="learn-section" id="daily-path">
           <h3>Beginner Daily Path</h3>
           <ol class="path-steps">
             <li><b>1</b><span>Sync first with <code>git pull</code>.</span></li>

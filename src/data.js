@@ -198,9 +198,9 @@ const commands = [
     color: "var(--green)",
     marker: "arrow-green",
     zones: ["local", "staging"],
-    risk: "danger",
+    risk: "caution",
     caution: "Rewrites last local commit",
-    note: "Moves the last commit back to staging so you can adjust and recommit."
+    note: "Moves the last commit back to staging so you can adjust and recommit. Soft reset keeps your edits staged, but avoid it on commits you have already shared."
   },
   {
     id: "reset-hard",
@@ -614,9 +614,9 @@ const statusScenarios = [
     label: "Diverged",
     zone: "remote",
     commandId: "fetch",
-    summary: "Both local and remote have commits the other side does not have. Plain git pull may stop under the fast-forward-only default, so choose rebase or merge.",
+    summary: "Both local and remote have commits the other side does not have. Plain git pull may stop under the fast-forward-only default, so choose rebase, merge, or run git fetch first and then merge origin/<branch>.",
     checks: ["git status", "git fetch", "git log --oneline --graph --decorate --all"],
-    next: ["git pull --rebase", "git pull --no-rebase", "git merge origin/<branch>"]
+    next: ["git pull --rebase", "git pull --no-rebase", "git fetch", "git merge origin/<branch>"]
   },
   {
     id: "conflict",
