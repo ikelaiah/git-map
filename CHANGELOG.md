@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1] - 2026-05-16
+
+### Changed
+
+- Situation Solver no longer scrolls the page when the user clicks **Analyze**; the recommended state and next-step pills now stay visible in the same panel.
+- Renamed the analysis follow-up button to **Take me to `<command>`** (e.g. `Take me to git pull`) so beginners can see exactly where the button will take them.
+- When the follow-up button scrolls to the recommended command, the card now lands in the centre of the viewport and pulses with its zone colour so the destination is unmistakable.
+
 ## [1.2.0] - 2026-05-15
 
 ### Added

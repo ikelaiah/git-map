@@ -526,12 +526,19 @@ function setActiveCommand(commandId) {
   renderSpotlight(visibleCommands(), activeCommandId);
 }
 
-function selectCommand(commandId) {
+function selectCommand(commandId, options = {}) {
   pinnedCommandId = commandId;
   setActiveCommand(commandId);
+  if (options.scroll === false) {
+    return;
+  }
   const card = commandList.querySelector(`[data-command-id="${commandId}"]`);
   if (card) {
-    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.remove("is-just-focused");
+    void card.offsetWidth;
+    card.classList.add("is-just-focused");
+    card.addEventListener("animationend", () => card.classList.remove("is-just-focused"), { once: true });
   }
 }
 
@@ -673,11 +680,11 @@ function renderStatusHelper() {
   });
 }
 
-function focusStatusScenario(scenario) {
+function focusStatusScenario(scenario, options = {}) {
   centerZoneInMap(scenario.zone);
   selectZone(scenario.zone, { pin: true, force: true });
   if (scenario.commandId && visibleCommands().some((item) => item.id === scenario.commandId)) {
-    selectCommand(scenario.commandId);
+    selectCommand(scenario.commandId, { scroll: options.scroll !== false });
   }
 }
 
@@ -765,7 +772,7 @@ function renderStatusAnalysis(matches, hasInput = Boolean(statusPaste?.value.tri
           ${secondary.map((match) => `<b>${escapeHtml(match.scenario.label)}</b>`).join("")}
         </div>
       ` : ""}
-      <button class="status-helper-action" type="button" data-analysis-focus>Show route</button>
+      <button class="status-helper-action" type="button" data-analysis-focus>Take me to <code>${escapeHtml(commandById(scenario.commandId)?.command || "the command")}</code></button>
     </div>
   `;
   statusAnalysis.querySelector("[data-analysis-focus]").addEventListener("click", () => {
@@ -778,7 +785,7 @@ function analyzeStatus(options = {}) {
   const matches = statusMatchesFromText(statusPaste?.value || "");
   renderStatusAnalysis(matches);
   if (shouldFocus && matches[0]) {
-    focusStatusScenario(matches[0].scenario);
+    focusStatusScenario(matches[0].scenario, { scroll: false });
   }
 }
 

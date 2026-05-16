@@ -1354,6 +1354,16 @@ h1 {
   outline: none;
 }
 
+@keyframes command-card-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cmd-color) 65%, transparent); }
+  60%  { box-shadow: 0 0 0 14px color-mix(in srgb, var(--cmd-color) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cmd-color) 0%, transparent); }
+}
+
+.command-card.is-just-focused {
+  animation: command-card-pulse 1.6s ease-out 2;
+}
+
 .command-card strong {
   display: block;
   font-size: 0.95rem;

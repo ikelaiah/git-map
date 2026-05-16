@@ -3,7 +3,7 @@
 [🌐 Live Demo](https://ikelaiah.github.io/git-map/)
 [GitHub Repository](https://github.com/ikelaiah/git-map)
 
-[![Version](https://img.shields.io/badge/Version-1.2.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.2.1-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 [![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
 [![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
