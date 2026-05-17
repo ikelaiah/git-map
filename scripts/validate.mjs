@@ -1,22 +1,27 @@
 import fs from "node:fs";
 import vm from "node:vm";
+import { validatePanicData } from "./panic-validator.mjs";
 
 const errors = [];
 const dataCode = fs.readFileSync("src/data.js", "utf8");
 const branchModelCode = fs.readFileSync("src/branch-map-model.js", "utf8");
+const panicDataCode = fs.readFileSync("src/panic-data.js", "utf8");
 const versionCode = fs.readFileSync("src/version.js", "utf8");
 const readme = fs.readFileSync("README.md", "utf8");
 const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
 const indexHtml = fs.readFileSync("index.html", "utf8");
 const branchHtml = fs.readFileSync("branch-map.html", "utf8");
+const panicHtml = fs.readFileSync("panic.html", "utf8");
 const context = { window: {} };
 
 vm.createContext(context);
 vm.runInContext(dataCode, context, { filename: "src/data.js" });
 vm.runInContext(branchModelCode, context, { filename: "src/branch-map-model.js" });
+vm.runInContext(panicDataCode, context, { filename: "src/panic-data.js" });
 
 const data = context.window.gitMapData;
 const branchModel = context.window.gitBranchMapModel;
+const panicData = context.window.panicData;
 const version = versionCode.match(/const version = "([^"]+)";/)?.[1];
 
 function fail(message) {
@@ -38,7 +43,8 @@ if (!version) {
   }
   [
     ["index.html", indexHtml],
-    ["branch-map.html", branchHtml]
+    ["branch-map.html", branchHtml],
+    ["panic.html", panicHtml]
   ].forEach(([name, html]) => {
     if (!html.includes('class="app-version"')) {
       fail(`${name} is missing an app-version label.`);
@@ -322,6 +328,12 @@ if (!branchModel) {
   branchModel.validateBranchState(conflictState).forEach((error) => {
     fail(`Conflict branch sandbox state: ${error}`);
   });
+}
+
+if (!panicData) {
+  fail("src/panic-data.js did not expose window.panicData.");
+} else {
+  validatePanicData(panicData).forEach(fail);
 }
 
 if (errors.length) {

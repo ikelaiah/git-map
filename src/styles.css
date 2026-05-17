@@ -1903,6 +1903,231 @@ h1 {
   grid-template-columns: 1fr;
 }
 
+/* Panic Recovery */
+.panic-tree-panel,
+.panic-list-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin: 22px 0;
+  box-shadow: var(--shadow);
+}
+
+.panic-tree-header,
+.panic-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panic-tree-header h2,
+.panic-list-header h2 {
+  margin: 0 0 4px;
+}
+
+.panic-tree-header p,
+.panic-list-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.panic-tree-reset {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+}
+
+.panic-tree-reset:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.panic-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panic-question {
+  border-left: 3px solid var(--line-strong);
+  padding: 6px 0 6px 14px;
+}
+
+.panic-question-text {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.panic-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panic-option {
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.panic-option:hover,
+.panic-option:focus-visible {
+  border-color: var(--blue);
+  outline: none;
+}
+
+.panic-option.is-selected {
+  background: color-mix(in srgb, var(--blue) 14%, var(--panel));
+  border-color: var(--blue);
+}
+
+.panic-stub {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-line);
+  color: var(--warning-ink);
+}
+
+.panic-stub a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.panic-cards {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .panic-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.panic-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-margin-top: 24px;
+}
+
+.panic-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panic-card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.panic-badge {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.panic-badge-safe {
+  background: color-mix(in srgb, var(--green) 18%, var(--panel));
+  color: var(--green);
+  border: 1px solid color-mix(in srgb, var(--green) 45%, transparent);
+}
+
+.panic-badge-caution {
+  background: var(--warning-soft);
+  color: var(--warning-ink);
+  border: 1px solid var(--warning-line);
+}
+
+.panic-badge-danger {
+  background: color-mix(in srgb, var(--red) 14%, var(--panel));
+  color: var(--red);
+  border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+}
+
+.panic-diagnosis {
+  margin: 0;
+  color: var(--ink);
+}
+
+.panic-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.panic-commands {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panic-commands li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panic-command-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.panic-command-row code {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.86rem;
+}
+
+.panic-commands li p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.panic-avoid p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.panic-card.is-just-focused {
+  animation: command-card-pulse 1.6s ease-out 2;
+  --cmd-color: var(--blue);
+}
+
 .merge-row {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
   align-items: end;
