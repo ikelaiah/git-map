@@ -1,42 +1,36 @@
 # Git Map
 
-[🌐 Live Demo](https://ikelaiah.github.io/git-map/)
+[Live Demo](https://ikelaiah.github.io/git-map/)
 [GitHub Repository](https://github.com/ikelaiah/git-map)
 
-[![Version](https://img.shields.io/badge/Version-1.3.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
-[![HTML5](https://img.shields.io/badge/Made%20with-HTML5-e34f26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
-[![CSS](https://img.shields.io/badge/CSS-theme--tokens-2f6fed?style=for-the-badge&logo=css&logoColor=white)](src/styles.css)
-[![Vanilla JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111111)](src/app.js)
-[![No Framework](https://img.shields.io/badge/Framework-none-64748b?style=for-the-badge)](index.html)
-[![No Dependencies](https://img.shields.io/badge/Dependencies-none-22c55e?style=for-the-badge)](index.html)
-[![Theme](https://img.shields.io/badge/Theme-light%20%7C%20dark%20%7C%20system-9b7cff?style=for-the-badge)](index.html)
-[![Offline Ready](https://img.shields.io/badge/Offline-ready-0ea5e9?style=for-the-badge)](index.html)
-[![Responsive](https://img.shields.io/badge/Layout-responsive-8b5cf6?style=for-the-badge)](index.html)
-[![Keyboard Accessible](https://img.shields.io/badge/Keyboard-accessible-06b6d4?style=for-the-badge)](index.html)
-[![Beginner Friendly](https://img.shields.io/badge/Beginner-friendly-f97316?style=for-the-badge)](README.md)
-[![No Build](https://img.shields.io/badge/Build-none-3bc5a7?style=for-the-badge)](index.html)
+[![Version](https://img.shields.io/badge/Version-1.4.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge)](LICENSE)
+[![No Build](https://img.shields.io/badge/Build-none-3bc5a7?style=for-the-badge)](index.html)
+[![Dependencies](https://img.shields.io/badge/Dependencies-none-22c55e?style=for-the-badge)](package.json)
+[![Offline Ready](https://img.shields.io/badge/Offline-ready-0ea5e9?style=for-the-badge)](index.html)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
 
-Git Map is a dependency-free Git visualisation and situation solver for beginners. The overview page shows the main Git areas:
+Git Map is a no-install visual Git sandbox for beginners. It helps you see where your work is, test branch and merge ideas safely, and recover from common Git mistakes with plain-English guidance and real commands.
 
-- 📦 Stash
-- 📝 Local Workspace
-- 🎯 Staging Area
-- 🗂️ Local Repo
-- 🌐 Remote Repo
+## What It Does
 
-Version 1.3 adds **Panic Recovery**, a third page (`panic.html`) for beginners who think they have broken something. A guided decision tree asks two or three questions ("Did you commit? Did you push? What disappeared?") and lands the reader on a recovery card with a plain-English diagnosis, the exact commands to fix it, a "why this works" explanation, and one tip to avoid the same panic next time. A full list of scenarios appears below the tree for users who would rather scan. v1.3 ships with 11 recoveries covering wrong-branch commits, accidental commits to main, mistakes in a local commit, lost edits after `git reset --hard`, detached HEAD, rejected push, aborting a merge or rebase conflict, lost stashes, deleted branches, overwriting a teammate with force push, and committed secrets or huge files.
+### Flow Map: where am I?
 
-Version 1.2 sharpens onboarding and refines the risk and recovery guidance. A dismissible "Start here" callout points beginners at the Beginner Daily Path on the overview page and at the create-from-commit flow on the Git Branch Map. The diverged pull scenario now suggests `git fetch` followed by `git merge origin/<branch>` as a clear two-step pair, and `git reset --soft HEAD~1` is presented as a caution rather than a danger because it keeps your edits staged.
+The main page maps how Git commands move work between stash, workspace, staging, local history, and remote. It includes focused and full-map views, safe/risky command filtering, a beginner daily path, scenario journeys, and a pasteable `git status` analyzer.
 
-Version 1.1 updated the command guidance for current Git behavior. The Git Branch Map creates branches from any selected commit, generated histories include the realistic edit, stage, and commit flow, diverged pull guidance shows explicit fast-forward, rebase, and merge choices, and both HTML pages link back to the GitHub repository.
+### Branch Map: what happens if I branch here?
+
+The Branch Map is an interactive sandbox for experimenting without touching a real repository. Click any commit, create a branch from that point, add commits, switch branches, merge, simulate conflicts, undo, reset, and copy the commands that would create the graph.
+
+### Panic Recovery: how do I fix this?
+
+Panic Recovery asks a few questions and points to a recovery card with a diagnosis, exact commands, a reversibility badge, and a short prevention tip. It covers wrong-branch commits, accidental commits to main, mistakes in the last local commit, lost edits after `git reset --hard`, detached HEAD, rejected push, merge/rebase conflict aborts, lost stashes, deleted branches, force-push damage, and committed secrets or huge files.
 
 Commands in the app are examples. Replace placeholders such as `<file>`, `<branch>`, `<commit>`, and visual IDs like `c2` with real paths, branch names, commit SHAs, tags, or refs from your repository.
 
-## 🧭 How To Use
+## How To Use
 
-### How To Use Git Map
+### Flow Map
 
 - Use **Focused** mode to learn one area at a time.
 - Use **Safe first** to hide destructive commands, or **Show risky** when you want the full map.
@@ -44,7 +38,15 @@ Commands in the app are examples. Replace placeholders such as `<file>`, `<branc
 - Paste real `git status` output into **Paste git status** to detect clean, staged, unstaged, untracked, ahead, behind, diverged, and conflict states.
 - Step through **Scenario journeys** for common workflows such as careful staging, conflict rescue, rejected push recovery, safe undo, and stash interruptions.
 
-### How To Use Panic Recovery
+### Branch Map
+
+- Open **Branch Map** from the page tabs.
+- Click any commit to choose where a new branch should start.
+- Create feature branches, add commits, switch branches, and merge branches visually.
+- Simulate a conflict to see the edit, `git add`, and `git commit` steps Git expects during resolution.
+- Review or copy the generated command history for the graph you built.
+
+### Panic Recovery
 
 - Open **Panic Recovery** from the page tabs when something feels broken.
 - Answer the **Guided rescue** questions in order; the matching recovery card scrolls into view and pulses so the destination is obvious.
@@ -52,23 +54,15 @@ Commands in the app are examples. Replace placeholders such as `<file>`, `<branc
 - Each card has a reversibility badge (**Reversible**, **Reversible with care**, or **Partly reversible**), the exact commands with copy buttons, a "why this works" paragraph, and one tip for avoiding the same panic next time.
 - Use **Start over** to reset the tree and try a different path.
 
-### How To Use Git Branch Map
+The app marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
 
-- Open **Git Branch Map** from the page tabs.
-- Click any commit to choose where a new branch should start.
-- Create feature branches, add commits, switch branches, and merge branches visually.
-- Simulate a conflict to see the edit, `git add`, and `git commit` steps Git expects during resolution.
-- Review or copy the generated command history for the graph you built.
+Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
 
-⚠️ The page also marks risky commands, such as commands that discard edits or rewrite recent local history. Appearance choice is saved locally in the browser.
+## Maintenance
 
-🚀 Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
+The project stays no-build and dependency-free, split by responsibility:
 
-## 🛠️ Maintenance
-
-The project stays no-build and dependency-free, but the page is split by responsibility:
-
-- `index.html`: page shell and static content.
+- `index.html`: Flow Map, status analyzer, and scenario journeys.
 - `branch-map.html`: interactive branch, commit, and merge sandbox.
 - `panic.html`: Panic Recovery page shell.
 - `src/styles.css`: theme tokens, layout, and responsive styles.
@@ -81,10 +75,10 @@ The project stays no-build and dependency-free, but the page is split by respons
 - `src/panic.js`: Panic Recovery decision-tree rendering and card highlight.
 - `scripts/validate.mjs`: data integrity checks.
 
-Run the validator after changing commands or zones:
+Run tests and validators:
 
 ```bash
-node scripts/validate.mjs
+npm test
 ```
 
 ## 🧰 Command Coverage
@@ -94,7 +88,7 @@ node scripts/validate.mjs
 - `git add -p`: stage selected hunks instead of whole files.
 - `git commit -m "message"`: save staged changes as a local commit.
 - `git push`: publish local commits to the shared remote branch.
-- `git pull`: fetch and integrate remote commits into the current branch; current Git defaults to fast-forward-only unless pull strategy config or options say otherwise.
+- `git pull`: fetch and integrate remote commits into the current branch.
 - `git pull --ff-only`: fetch and update only when the current branch can fast-forward.
 - `git pull --rebase`: fetch and replay local commits on top of the upstream.
 - `git pull --no-rebase`: fetch and merge the upstream, creating a merge commit when needed.
@@ -117,6 +111,6 @@ node scripts/validate.mjs
 - `git tag <name>`: mark a release point.
 - `git remote add origin <url>`: record a remote URL in local Git config.
 
-## 📄 License
+## License
 
 MIT License. See [LICENSE](LICENSE).

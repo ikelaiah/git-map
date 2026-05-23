@@ -3,23 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Git Map</title>
+  <title>Git Map - Flow Map and Git Status Guide</title>
+  <meta name="description" content="Map where your Git work is, paste git status output, and follow command journeys across stash, workspace, staging, local history, and remote.">
   <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
   <main>
     <section class="topbar" aria-labelledby="page-title">
       <div>
-        <h1 id="page-title">Git Map</h1>
-        <p class="intro">Explore how Git commands move work between stash, workspace, staging, local history, and remote repositories.</p>
+        <h1 id="page-title">Flow Map</h1>
+        <p class="intro">See where your work is, what state Git thinks you are in, and which commands move changes between stash, workspace, staging, local history, and remote.</p>
         <aside class="start-here" id="start-here" role="note" hidden>
           <span class="start-here-icon" aria-hidden="true">👉</span>
           <p class="start-here-text">New here? Follow the <a href="#daily-path">Beginner Daily Path</a> — pull, edit, add, commit, push.</p>
           <button class="start-here-dismiss" type="button" id="start-here-dismiss" aria-label="Dismiss start here callout">×</button>
         </aside>
         <nav class="page-tabs" aria-label="Git map pages">
-          <a href="index.html" aria-current="page">Git Map</a>
-          <a href="branch-map.html">Git Branch Map</a>
+          <a href="index.html" aria-current="page">Flow Map</a>
+          <a href="branch-map.html">Branch Map</a>
           <a href="panic.html">Panic Recovery</a>
           <a href="https://github.com/ikelaiah/git-map" target="_blank" rel="noopener noreferrer">GitHub</a>
           <span class="app-version"></span>
@@ -66,7 +67,7 @@
     <section class="workflow-console" aria-labelledby="workflow-title">
       <div class="workflow-heading">
         <h2 id="workflow-title">Situation Solver</h2>
-        <p>Match a real Git state to the next route.</p>
+        <p>Paste real git status output and match the state to a next route.</p>
       </div>
 
       <div class="workflow-grid">
