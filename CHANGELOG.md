@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0] - 2026-05-23
+
+### Changed
+
+- Repositioned Git Map as a three-part learning and rescue tool: **Flow Map** for "where am I?", **Branch Map** for safe experimentation, and **Panic Recovery** for fixing common mistakes.
+- Kept the interactive Branch Map as a core feature and made the README describe it as the project's safe experimentation sandbox.
+- Tightened page titles, intro copy, navigation labels, and package metadata around the see, test, recover framing.
+- Replaced the README badge wall with a compact badge set covering version, license, no build step, dependencies, offline use, and GitHub Pages.
+
+### Fixed
+
+- Removed stale Panic Recovery copy that referred to a later v1.3 update.
+
 ## [1.3.0] - 2026-05-16
 
 ### Added

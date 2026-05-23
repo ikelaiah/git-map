@@ -35,9 +35,6 @@ function isNonEmptyString(value) {
 if (!version) {
   fail("src/version.js is missing a string version constant.");
 } else {
-  if (!readme.includes(`Version-${version}`)) {
-    fail(`README version badge does not match src/version.js (${version}).`);
-  }
   if (!changelog.includes(`## [${version}]`)) {
     fail(`CHANGELOG is missing an entry for src/version.js (${version}).`);
   }

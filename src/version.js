@@ -1,5 +1,5 @@
 (() => {
-  const version = "1.3.0";
+  const version = "1.4.0";
   const startHereStorageKey = "git-map-start-here-dismissed";
 
   window.gitMapVersion = version;
