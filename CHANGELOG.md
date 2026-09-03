@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.1] - 2026-09-04
+
+### Fixed
+
+- Corrected Panic Recovery guidance for staged wrong-branch commits, reflog-based recovery, force-push overwrites, pull choices, and operation aborts.
+- Removed misleading retention promises and tightened safety/reversibility labels for history rewriting and recovery that depends on temporary Git objects.
+
+### Added
+
+- Added dependency-free real-Git integration tests covering recovery, conflicts, branch deletion, and rejected pushes.
+- Added GitHub Actions CI for the complete test suite.
+
+### Changed
+
+- Made mutually exclusive pull and abort commands visibly alternative choices in Panic Recovery.
+- Hardened version and recovery-data validation.
+
 ## [1.4.0] - 2026-05-23
 
 ### Changed

@@ -340,7 +340,7 @@ const commands = [
     color: "var(--red)",
     marker: "arrow-red",
     zones: ["remote", "workspace"],
-    note: "Fetches the configured upstream and integrates it into the current branch. Current Git defaults to fast-forward-only unless pull strategy config or options say otherwise."
+    note: "Fetches the configured upstream and integrates it into the current branch. For divergent histories, choose or configure a rebase or merge strategy; --ff-only is a separate explicit safety option."
   },
   {
     id: "push",
@@ -382,6 +382,7 @@ const toolCommands = {
   stash: [
     { command: "git stash list", note: "Show saved stashes." },
     { command: "git stash show -p", note: "Preview what is inside a stash." },
+    { command: "git stash pop --index", note: "Restore a stash and ask Git to restore its saved staging/index state too." },
     { command: "git stash -u", note: "Stash tracked and untracked files." },
     { command: "git stash branch <branch>", note: "Create a branch from a stash." }
   ],
@@ -614,7 +615,7 @@ const statusScenarios = [
     label: "Diverged",
     zone: "remote",
     commandId: "fetch",
-    summary: "Both local and remote have commits the other side does not have. Plain git pull may stop under the fast-forward-only default, so choose rebase, merge, or run git fetch first and then merge origin/<branch>.",
+    summary: "Both local and remote have commits the other side does not have. Choose a rebase or merge strategy, or fetch first and then merge origin/<branch>; do not treat these alternatives as a sequence.",
     checks: ["git status", "git fetch", "git log --oneline --graph --decorate --all"],
     next: ["git pull --rebase", "git pull --no-rebase", "git fetch", "git merge origin/<branch>"]
   },

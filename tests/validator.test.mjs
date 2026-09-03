@@ -76,6 +76,12 @@ describe("validatePanicData", () => {
     expectError(validatePanicData(data), "missing command or note");
   });
 
+  it("does not allow destructive or history-rewriting commands in a safe recovery", () => {
+    const data = goodData();
+    data.recoveries[0].commands = [{ command: "git reset --hard HEAD", note: "Discard everything." }];
+    expectError(validatePanicData(data), "marked safe");
+  });
+
   it("flags a tree leaf pointing at an unknown recovery", () => {
     const data = goodData();
     data.tree.rootOptions[0].recoveryId = "does-not-exist";

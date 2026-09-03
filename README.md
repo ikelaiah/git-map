@@ -3,7 +3,7 @@
 [Live Demo](https://ikelaiah.github.io/git-map/)
 [GitHub Repository](https://github.com/ikelaiah/git-map)
 
-[![Version](https://img.shields.io/badge/Version-1.4.0-2f6fed?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.4.1-2f6fed?style=for-the-badge)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge)](LICENSE)
 [![No Build](https://img.shields.io/badge/Build-none-3bc5a7?style=for-the-badge)](index.html)
 [![Dependencies](https://img.shields.io/badge/Dependencies-none-22c55e?style=for-the-badge)](package.json)
@@ -75,7 +75,7 @@ The project stays no-build and dependency-free, split by responsibility:
 - `src/panic.js`: Panic Recovery decision-tree rendering and card highlight.
 - `scripts/validate.mjs`: data integrity checks.
 
-Run tests and validators:
+Run the unit/data suite, real-Git behavioral tests in temporary repositories, and validators:
 
 ```bash
 npm test
@@ -88,7 +88,7 @@ npm test
 - `git add -p`: stage selected hunks instead of whole files.
 - `git commit -m "message"`: save staged changes as a local commit.
 - `git push`: publish local commits to the shared remote branch.
-- `git pull`: fetch and integrate remote commits into the current branch.
+- `git pull`: fetch and integrate remote commits into the current branch; choose a merge or rebase strategy when histories have diverged.
 - `git pull --ff-only`: fetch and update only when the current branch can fast-forward.
 - `git pull --rebase`: fetch and replay local commits on top of the upstream.
 - `git pull --no-rebase`: fetch and merge the upstream, creating a merge commit when needed.
@@ -105,6 +105,7 @@ npm test
 - `git reset --hard HEAD`: discard all local tracked changes.
 - `git restore .`: discard unstaged workspace edits by restoring files from the index.
 - `git stash -u`: stash tracked and untracked files.
+- `git stash pop --index`: restore a stash and ask Git to restore its saved staging state too.
 - `git stash branch <branch>`: create a branch from a stash.
 - `git log --oneline --graph --decorate --all`: view commit history as a graph.
 - `git blame <file>`: see who last changed each line.

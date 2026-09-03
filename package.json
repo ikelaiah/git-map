@@ -1,11 +1,12 @@
 {
   "name": "git-map",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "description": "Visual Git sandbox for mapping status, experimenting with branches, and recovering from common mistakes.",
   "scripts": {
-    "test": "node --test tests/*.test.mjs && node scripts/validate.mjs",
-    "test:unit": "node --test tests/*.test.mjs",
+    "test": "npm run test:unit && npm run test:git && npm run validate",
+    "test:unit": "node --test tests/branch-model.test.mjs tests/cross-file-constants.test.mjs tests/panic-data.test.mjs tests/status-matcher.test.mjs tests/validator.test.mjs",
+    "test:git": "node --test tests/git-integration.test.mjs",
     "validate": "node scripts/validate.mjs"
   }
 }
