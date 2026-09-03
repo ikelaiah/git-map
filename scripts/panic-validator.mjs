@@ -1,4 +1,5 @@
 const VALID_REVERSIBILITY = new Set(["safe", "caution", "danger"]);
+const DESTRUCTIVE_OR_REWRITING_COMMAND = /(?:--force(?:-with-lease)?|\bpush -f\b|\breset --(?:hard|soft)\b|\bcommit --amend\b|\bfilter-repo\b|\bbranch -D\b|\bclean -fd?\b)/;
 
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
@@ -38,8 +39,19 @@ export function validatePanicData(panicData) {
       fail(`Panic recovery "${recovery.id}" is missing commands.`);
     } else {
       recovery.commands.forEach((step, index) => {
+        if (isNonEmptyString(step.heading)) {
+          return;
+        }
         if (!isNonEmptyString(step.command) || !isNonEmptyString(step.note)) {
           fail(`Panic recovery "${recovery.id}" command ${index} is missing command or note.`);
+        }
+      });
+    }
+
+    if (recovery.reversibility === "safe") {
+      recovery.commands.forEach((step) => {
+        if (DESTRUCTIVE_OR_REWRITING_COMMAND.test(step.command || "")) {
+          fail(`Panic recovery "${recovery.id}" is marked safe but includes a destructive or history-rewriting command.`);
         }
       });
     }

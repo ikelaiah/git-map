@@ -50,7 +50,9 @@
         <div class="panic-section">
           <h4>Fix it</h4>
           <ol class="panic-commands">
-            ${recovery.commands.map((step) => `
+            ${recovery.commands.map((step) => step.heading ? `
+              <li class="panic-command-heading"><strong>${escapeHtml(step.heading)}</strong></li>
+            ` : `
               <li>
                 <div class="panic-command-row">
                   <code>${escapeHtml(step.command)}</code>

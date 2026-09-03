@@ -34,6 +34,10 @@ describe("panicData", () => {
       assert.ok(VALID_REVERSIBILITY.has(recovery.reversibility), `${recovery.id} has unknown reversibility "${recovery.reversibility}"`);
       assert.ok(Array.isArray(recovery.commands) && recovery.commands.length > 0, `${recovery.id} has no commands`);
       recovery.commands.forEach((step, index) => {
+        if (step.heading) {
+          assert.equal(typeof step.heading, "string", `${recovery.id} heading ${index} must be a string`);
+          return;
+        }
         assert.ok(step.command && step.note, `${recovery.id} command ${index} missing command or note`);
       });
     });
@@ -95,6 +99,9 @@ describe("panicData", () => {
       /reset --hard/,
       /filter-repo/,
       /push -f\b/,
+      /force-with-lease/,
+      /reset --soft/,
+      /commit --amend/,
       /branch -D\b/,
       /clean -fd?\b/
     ];
@@ -112,5 +119,42 @@ describe("panicData", () => {
       });
     });
     assert.equal(offenders.length, 0, `Safe recoveries contain dangerous commands:\n  ${offenders.join("\n  ")}`);
+  });
+
+  it("keeps staging only when wrong-branch recovery explicitly restores the index", () => {
+    const recovery = panicData.recoveries.find(({ id }) => id === "panic-wrong-branch-local");
+    assert.equal(recovery.reversibility, "caution");
+    const stashRestore = recovery.commands.find(({ command }) => command.includes("stash pop"));
+    assert.equal(stashRestore.command, "git stash pop --index");
+    assert.match(stashRestore.note, /working tree/i);
+    assert.match(stashRestore.note, /staging|index/i);
+  });
+
+  it("does not describe reflog recovery as having a fixed retention period", () => {
+    const reflogRecoveries = panicData.recoveries.filter((recovery) =>
+      recovery.commands.some(({ command }) => command?.includes("reflog"))
+    );
+    reflogRecoveries.forEach((recovery) => {
+      assert.doesNotMatch(recovery.whyItWorks, /\b(?:90 days|2 weeks)\b/i, recovery.id);
+      if (["panic-reset-hard-lost-edits", "panic-lost-stash", "panic-deleted-branch"].includes(recovery.id)) {
+        assert.match(`${recovery.diagnosis} ${recovery.whyItWorks}`, /temporary|as soon as possible/i, recovery.id);
+      }
+    });
+  });
+
+  it("requires a deliberate recovery sequence after a force-push overwrite", () => {
+    const recovery = panicData.recoveries.find(({ id }) => id === "panic-force-push-overwrote");
+    const text = [recovery.diagnosis, recovery.whyItWorks, ...recovery.commands.map(({ command, note }) => `${command} ${note}`)].join(" ");
+    assert.equal(recovery.reversibility, "danger");
+    assert.match(text, /rescue branch/i);
+    assert.match(text, /cherry-pick|merge/i);
+    assert.doesNotMatch(text, /push --force-with-lease origin <sha>:<branch>/i);
+  });
+
+  it("separates mutually exclusive local and pushed-secret recovery paths", () => {
+    const recovery = panicData.recoveries.find(({ id }) => id === "panic-secrets-committed");
+    const headings = recovery.commands.flatMap(({ heading }) => heading ? [heading] : []);
+    assert.ok(headings.some((heading) => /not been pushed/i.test(heading)));
+    assert.ok(headings.some((heading) => /already pushed/i.test(heading)));
   });
 });

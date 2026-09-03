@@ -7,6 +7,7 @@ const dataCode = fs.readFileSync("src/data.js", "utf8");
 const branchModelCode = fs.readFileSync("src/branch-map-model.js", "utf8");
 const panicDataCode = fs.readFileSync("src/panic-data.js", "utf8");
 const versionCode = fs.readFileSync("src/version.js", "utf8");
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 const readme = fs.readFileSync("README.md", "utf8");
 const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
 const indexHtml = fs.readFileSync("index.html", "utf8");
@@ -37,6 +38,12 @@ if (!version) {
 } else {
   if (!changelog.includes(`## [${version}]`)) {
     fail(`CHANGELOG is missing an entry for src/version.js (${version}).`);
+  }
+  if (packageJson.version !== version) {
+    fail(`package.json version (${packageJson.version}) does not match src/version.js (${version}).`);
+  }
+  if (!readme.includes(`Version-${version}-`)) {
+    fail(`README version badge does not match src/version.js (${version}).`);
   }
   [
     ["index.html", indexHtml],
