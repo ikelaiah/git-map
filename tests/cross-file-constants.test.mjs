@@ -7,7 +7,7 @@ const THEME_KEY = "git-map-theme";
 const FILES_THAT_TOUCH_THEME = [
   "src/app.js",
   "src/branch-map.js",
-  "panic.html"
+  "src/panic.js"
 ];
 
 describe("cross-file constants", () => {

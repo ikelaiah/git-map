@@ -178,3 +178,24 @@
   renderCards();
   resetTree();
 })();
+
+// Theme switcher (kept here so the page CSP can forbid inline scripts).
+(() => {
+  const themeButtons = document.querySelectorAll("[data-theme-choice]");
+  if (!themeButtons.length) return;
+  const STORAGE_KEY = "git-map-theme";
+  function apply(choice) {
+    const next = ["light", "dark", "system"].includes(choice) ? choice : "system";
+    document.documentElement.dataset.theme = next;
+    themeButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.themeChoice === next));
+    });
+    try { localStorage.setItem(STORAGE_KEY, next); } catch {}
+  }
+  let initial = "system";
+  try { initial = localStorage.getItem(STORAGE_KEY) || "system"; } catch {}
+  apply(initial);
+  themeButtons.forEach((button) => {
+    button.addEventListener("click", () => apply(button.dataset.themeChoice));
+  });
+})();

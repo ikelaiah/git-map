@@ -58,6 +58,38 @@ The app marks risky commands, such as commands that discard edits or rewrite rec
 
 Use the [live demo](https://ikelaiah.github.io/git-map/) or open `index.html` in a browser to run it locally.
 
+## 🔒 Privacy and security
+
+**Nothing you enter leaves the page.** Git Map is three static HTML pages with
+plain JavaScript and no backend.
+
+| Question | Answer |
+| --- | --- |
+| Does it touch my repository? | No. It runs no Git commands and cannot read your files or credentials. The Branch Map is a simulation. |
+| Where does pasted `git status` go? | Nowhere. It is analysed in the tab and gone on reload. |
+| Network requests? | None after the page loads. It works offline. |
+| What stops it from sending? | A Content Security Policy in each page: `default-src 'none'; script-src 'self'; connect-src 'none'; form-action 'none'`. The browser blocks network requests, form posts, inline scripts and scripts from any other origin. |
+| Third-party code? | None. No dependencies, CDN, web fonts, analytics or trackers. |
+| Accounts, cookies, telemetry? | None. |
+| What is stored? | `localStorage` keys `git-map-theme` and `git-map-start-here-dismissed`. No pasted text. |
+| Who sees the page load? | The host (GitHub Pages, or your own server) logs a normal file request. |
+| Are commands safe to run? | They are examples for you to read, adapt and run yourself. Destructive ones are marked and hidden by **Safe first**. |
+
+### Verify it yourself
+
+1. Open DevTools (**F12**) → **Network**, reload, then clear the list.
+2. Paste `git status`, build branches, use Panic Recovery. The list stays empty.
+3. Go offline. Everything still works.
+4. View source: the CSP `<meta>` tag is near the top of each page.
+5. Read the source. There is no build step, so `src/` is exactly what runs.
+
+For zero contact with any host, clone the repo and open `index.html` from disk.
+
+### Limits
+
+- Browser extensions with page access can read any page, this one included.
+- Review a recovery command before running it on a real repository.
+
 ## Maintenance
 
 The project stays no-build and dependency-free, split by responsibility:

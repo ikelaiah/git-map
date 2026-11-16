@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Git Map - Flow Map and Git Status Guide</title>
   <meta name="description" content="Map where your Git work is, paste git status output, and follow command journeys across stash, workspace, staging, local history, and remote.">
@@ -156,6 +157,20 @@
         </div>
       </section>
     </section>
+    <footer class="privacy-footer">
+      <details>
+        <summary><span aria-hidden="true">🔒</span> Private by design: nothing leaves this page</summary>
+        <ul>
+          <li>Git Map never touches a real repository. It runs no Git commands and cannot read your files.</li>
+          <li>Pasted <code>git status</code> output is analysed in this tab and discarded on reload.</li>
+          <li>No backend, account, cookies, analytics or third-party scripts. No network requests after the page loads, so it works offline.</li>
+          <li>Enforced by the browser: each page's security policy blocks all network connections.</li>
+          <li>Only your theme choice and a dismissed hint are stored, in this browser's <code>localStorage</code>.</li>
+          <li>Commands are text for you to read and run yourself. Risky ones are labelled.</li>
+        </ul>
+        <p>Check it: DevTools (F12) &rarr; Network stays empty while you use the app.</p>
+      </details>
+    </footer>
   </main>
 
   <script src="src/version.js"></script>
